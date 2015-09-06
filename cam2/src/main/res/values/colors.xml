@@ -6,4 +6,6 @@
   <color name="cwac_cam2_recording_fab_pressed">#e75043</color>
   <color name="cwac_cam2_picture_fab">#00a400</color>
   <color name="cwac_cam2_picture_fab_pressed">#00da00</color>
+  <color name="camera_button_pressed">#393939</color>
+  <color name="camera_fragment_background">#212121</color>
 </resources>

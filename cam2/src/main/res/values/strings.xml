@@ -2,4 +2,6 @@
 <resources>
   <string name="cwac_cam2_ok">OK</string>
   <string name="cwac_cam2_retry">Try again</string>
+  <string name="camera_problem">Problem</string>
+  <string name="camera_ok">Correct</string>
 </resources>

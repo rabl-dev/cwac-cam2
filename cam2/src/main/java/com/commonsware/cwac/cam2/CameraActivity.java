@@ -146,8 +146,8 @@ public class CameraActivity extends AbstractCameraActivity
   }
 
   @Override
-  protected CameraFragment buildFragment() {
-    return(CameraFragment.newPictureInstance(getOutputUri(),
+  protected CustomCameraFragment buildFragment() {
+    return(CustomCameraFragment.newPictureInstance(getOutputUri(),
         getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false)));
   }
 

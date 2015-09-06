@@ -52,8 +52,8 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
   }
 
   @Override
-  protected CameraFragment buildFragment() {
-    return(CameraFragment.newVideoInstance(getOutputUri(),
+  protected CustomCameraFragment buildFragment() {
+    return(CustomCameraFragment.newVideoInstance(getOutputUri(),
         getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false),
         getIntent().getIntExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1),
         getIntent().getIntExtra(MediaStore.EXTRA_SIZE_LIMIT, 0),
