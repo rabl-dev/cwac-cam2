@@ -22,7 +22,8 @@
 | Samsung Galaxy Note 2 GT-N7100 | `samsung`/`t03gxx`          | 4.1.2 | |
 | Samsung Galaxy Pocket Neo      | `samsung`/`corsicadd`       | 4.1.2 | |
 | Samsung Galaxy S III           | `samsung`/`d2lterefreshspr` | 4.4.2 | |
-| Samsung Galaxy S 4 Zoom        | `samsung`/`mprojectlteuc`   | 4.2.2 | |
+| Samsung Galaxy S III           | `samsung`/`d2uc`            | 4.4.2 | |
+| Samsung Galaxy S 4 Zoom        | `samsung`/`mprojectlteuc`   | 4.2.2 | [84](https://github.com/commonsguy/cwac-cam2/issues/84) |
 
 Columns:
 - Device = generally accepted marketing term for the device
