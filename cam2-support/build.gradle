@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 
 repositories {
     maven {
-        url "https://repo.commonsware.com.s3.amazonaws.com"
+        url "https://s3.amazonaws.com/repo.commonsware.com"
     }
 }
 
 dependencies {
-    compile 'com.commonsware.cwac:cam2:0.1.+'
+    compile 'com.commonsware.cwac:cam2:0.2.+'
     compile 'com.android.support:support-v13:22.1.1'
 }
 

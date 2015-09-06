@@ -14,6 +14,7 @@
 
 package com.commonsware.cwac.cam2;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -25,6 +26,16 @@ import android.provider.MediaStore;
  * as does ACTION_VIDEO_CAPTURE.
  */
 public class VideoRecorderActivity extends AbstractCameraActivity {
+  private static final String[] PERMS={
+    Manifest.permission.CAMERA,
+    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    Manifest.permission.RECORD_AUDIO};
+
+  @Override
+  protected String[] getNeededPermissions() {
+    return(PERMS);
+  }
+
   @Override
   protected boolean needsOverlay() {
     return(false);

@@ -59,10 +59,6 @@ public class Utils {
       throw new IllegalStateException("App is running on device that lacks a camera");
     }
 
-    if (pm.checkPermission(Manifest.permission.CAMERA, ctxt.getPackageName())==PackageManager.PERMISSION_DENIED) {
-      throw new IllegalStateException("App lacks the CAMERA permission");
-    }
-
     if (ctxt instanceof CameraActivity) {
       try {
         ActivityInfo info=pm.getActivityInfo(((CameraActivity)ctxt).getComponentName(), 0);

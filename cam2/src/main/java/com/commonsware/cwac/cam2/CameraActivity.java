@@ -14,6 +14,7 @@
 
 package com.commonsware.cwac.cam2;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,18 +37,18 @@ public class CameraActivity extends AbstractCameraActivity
   public static final String EXTRA_CONFIRM="cwac_cam2_confirm";
 
   private static final String TAG_CONFIRM=ConfirmationFragment.class.getCanonicalName();
+  private static final String[] PERMS={Manifest.permission.CAMERA};
   private ConfirmationFragment confirmFrag;
   private boolean needsThumbnail=false;
 
-  /**
-   * Standard lifecycle method, serving as the main entry
-   * point of the activity.
-   *
-   * @param savedInstanceState the state of a previous instance
-   */
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+  protected String[] getNeededPermissions() {
+    return(PERMS);
+  }
+
+  @Override
+  protected void init() {
+    super.init();
 
     confirmFrag=(ConfirmationFragment)getFragmentManager().findFragmentByTag(TAG_CONFIRM);
 

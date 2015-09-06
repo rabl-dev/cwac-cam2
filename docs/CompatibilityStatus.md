@@ -18,6 +18,7 @@
 | HTC One M7 GPE                 | `HTC`/`m7_google`           | 5.1   | |
 | Samsung Galaxy Ace 3           | `samsung`/`loganub`         | 4.2.2 | |
 | Samsung Galaxy Camera EK-GC110 | `samsung`/`gd1wifiue`       | 4.1.2 | |
+| Samsung Galaxy Grand GT-I9080L | `samsung`/`baffinssvj`      | 4.2.2 | |
 | Samsung Galaxy Note 2 GT-N7100 | `samsung`/`t03gxx`          | 4.1.2 | |
 | Samsung Galaxy Pocket Neo      | `samsung`/`corsicadd`       | 4.1.2 | |
 | Samsung Galaxy S III           | `samsung`/`d2lterefreshspr` | 4.4.2 | |

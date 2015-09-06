@@ -96,3 +96,9 @@ RAM while the user is taking a picture, and it does incrementally
 slow down the launching of the `VideoRecorderActivity`. You can see this
 use of `android:process` demonstrated in the `demo-playground/`
 sample project.
+
+## Permissions
+
+This library uses certain permissions. You may wish to review
+[the documentation on permissions](Permissions.md) to learn
+more about what they are and how to manage them.
