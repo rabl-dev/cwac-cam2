@@ -18,7 +18,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 
 /**
  * Stock activity for taking pictures. Supports the same
@@ -35,6 +34,7 @@ public class CameraActivity extends AbstractCameraActivity
    * to true, meaning that the user should confirm the picture.
    */
   public static final String EXTRA_CONFIRM="cwac_cam2_confirm";
+    public static final String EXTRA_STATUS="cwac_cam2_extra_status";
 
   private static final String TAG_CONFIRM=ConfirmationFragment.class.getCanonicalName();
   private static final String[] PERMS={Manifest.permission.CAMERA};
@@ -122,7 +122,10 @@ public class CameraActivity extends AbstractCameraActivity
         findViewById(android.R.id.content).post(new Runnable() {
           @Override
           public void run() {
-            setResult(RESULT_OK, new Intent().setData(getOutputUri()));
+            Intent resultPath = new Intent();
+            resultPath.setData(getOutputUri());
+            resultPath.putExtra(EXTRA_STATUS, CustomCameraFragment.outPutState);
+            setResult(RESULT_OK, resultPath);
             removeFragments();
           }
         });
@@ -146,9 +149,10 @@ public class CameraActivity extends AbstractCameraActivity
   }
 
   @Override
-  protected CameraFragment buildFragment() {
-    return(CameraFragment.newPictureInstance(getOutputUri(),
-        getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false)));
+  protected CustomCameraFragment buildFragment() {
+    return(CustomCameraFragment.newPictureInstance(getOutputUri(),
+        getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false),
+        getIntent().getStringExtra(EXTRA_STATE)));
   }
 
   private void removeFragments() {

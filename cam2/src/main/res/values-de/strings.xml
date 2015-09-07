@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camera_problem">Mangel</string>
+    <string name="camera_ok">Korrekt</string>
+    <string name="camera_problem_cont">Weiterer Mangel</string>
+    <string name="camera_ok_cont">Weiters Korrekt</string>
+    <string name="camera_failed">Kamerafehler</string>
+</resources>

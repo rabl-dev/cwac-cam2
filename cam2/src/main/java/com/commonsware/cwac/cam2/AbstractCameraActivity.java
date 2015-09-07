@@ -57,7 +57,7 @@ abstract public class AbstractCameraActivity extends Activity {
   /**
    * @return a CameraFragment for the given circumstances
    */
-  abstract protected CameraFragment buildFragment();
+  abstract protected CustomCameraFragment buildFragment();
 
   /**
    * @return array of the names of the permissions needed by
@@ -90,10 +90,11 @@ abstract public class AbstractCameraActivity extends Activity {
    * devices. Defaults to false.
    */
   public static final String EXTRA_FORCE_CLASSIC="cwac_cam2_force_classic";
+  public static final String EXTRA_STATE = "cwac_cam_custom_state";
 
-  protected static final String TAG_CAMERA=CameraFragment.class.getCanonicalName();
+  protected static final String TAG_CAMERA=CustomCameraFragment.class.getCanonicalName();
   private static final int REQUEST_PERMS=13401;
-  protected CameraFragment cameraFrag;
+  protected CustomCameraFragment cameraFrag;
 
   /**
    * Standard lifecycle method, serving as the main entry
@@ -205,7 +206,7 @@ abstract public class AbstractCameraActivity extends Activity {
   }
 
   protected void init() {
-    cameraFrag=(CameraFragment)getFragmentManager().findFragmentByTag(TAG_CAMERA);
+    cameraFrag=(CustomCameraFragment)getFragmentManager().findFragmentByTag(TAG_CAMERA);
 
     if (cameraFrag==null) {
       cameraFrag=buildFragment();
@@ -358,6 +359,12 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public IntentBuilder updateMediaStore() {
       result.putExtra(EXTRA_UPDATE_MEDIA_STORE, true);
+
+      return(this);
+    }
+
+    public IntentBuilder setState(String state) {
+      result.putExtra(EXTRA_STATE, state);
 
       return(this);
     }
