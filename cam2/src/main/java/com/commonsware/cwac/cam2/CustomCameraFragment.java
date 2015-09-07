@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2015 CommonsWare, LLC
- * <p/>
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,10 +14,6 @@
 
 package com.commonsware.cwac.cam2;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Context;
@@ -26,15 +22,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-
-import com.github.clans.fab.FloatingActionMenu;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -47,6 +41,7 @@ import de.greenrobot.event.EventBus;
  */
 public class CustomCameraFragment extends Fragment {
     private static final String ARG_OUTPUT = "output";
+    private static final String ARG_STATE = "state";
     private static final String ARG_UPDATE_MEDIA_STORE = "updateMediaStore";
     private static final String ARG_IS_VIDEO = "isVideo";
     private static final String ARG_VIDEO_QUALITY = "quality";
@@ -55,18 +50,23 @@ public class CustomCameraFragment extends Fragment {
     private CameraController ctlr;
     private LinearLayout okButton;
     private LinearLayout problemButton;
+    private TextView okButtonText;
+    private TextView problemButtonText;
     private ViewGroup previewStack;
     private View progress;
+    private boolean neutralMode;
     private boolean isVideoRecording = false;
+    private State state;
 
     public static CustomCameraFragment newPictureInstance(Uri output,
-                                                          boolean updateMediaStore) {
+                                                          boolean updateMediaStore, String state) {
         CustomCameraFragment f = new CustomCameraFragment();
         Bundle args = new Bundle();
 
         args.putParcelable(ARG_OUTPUT, output);
         args.putBoolean(ARG_UPDATE_MEDIA_STORE, updateMediaStore);
         args.putBoolean(ARG_IS_VIDEO, false);
+        args.putString(ARG_STATE, state);
         f.setArguments(args);
 
         return (f);
@@ -100,6 +100,12 @@ public class CustomCameraFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         setRetainInstance(true);
+        String stringState = getArguments().getString(ARG_STATE);
+        if (TextUtils.isEmpty(stringState)) {
+            state = State.NORMAL;
+        } else {
+            state = State.valueOf(stringState);
+        }
     }
 
     /**
@@ -194,6 +200,8 @@ public class CustomCameraFragment extends Fragment {
 
         okButton = (LinearLayout) v.findViewById(R.id.btn_camera_ok);
         problemButton = (LinearLayout) v.findViewById(R.id.btn_camera_problem);
+        okButtonText = (TextView) v.findViewById(R.id.tv_camera_ok);
+        problemButtonText = (TextView) v.findViewById(R.id.tv_camera_problem);
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,6 +224,30 @@ public class CustomCameraFragment extends Fragment {
 
         okButton.setClickable(false);
         problemButton.setClickable(false);
+
+        // Set buttons and texts if we already have a status
+        switch (state) {
+            case NORMAL:
+                break;
+            case OK:
+                okButton.setPadding(0, 0, 0, 0);
+                okButtonText.setText(R.string.camera_ok_cont);
+                problemButton.setVisibility(View.GONE);
+                break;
+            case PROBLEM:
+                problemButton.setPadding(0, 0, 0, 0);
+                problemButtonText.setText(R.string.camera_problem_cont);
+                okButton.setVisibility(View.GONE);
+                break;
+            case NEUTRAL:
+                neutralMode = true;
+                okButton.setPadding(0, 0, 0, 0);
+                okButtonText.setCompoundDrawablesWithIntrinsicBounds(0,
+                        R.drawable.ic_camera_neutral, 0, 0);
+                okButtonText.setText("");
+                problemButton.setVisibility(View.GONE);
+                break;
+        }
 
         if (ctlr != null && ctlr.getNumberOfCameras() > 0) {
             prepController();
@@ -353,33 +385,7 @@ public class CustomCameraFragment extends Fragment {
         ctlr.setCameraViews(cameraViews);
     }
 
-    // based on https://goo.gl/3IUM8K
-
-    private void changeMenuIconAnimation(final FloatingActionMenu menu) {
-        AnimatorSet set = new AnimatorSet();
-        final ImageView v = menu.getMenuIconView();
-        ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(v, "scaleX", 1.0f, 0.2f);
-        ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(v, "scaleY", 1.0f, 0.2f);
-        ObjectAnimator scaleInX = ObjectAnimator.ofFloat(v, "scaleX", 0.2f, 1.0f);
-        ObjectAnimator scaleInY = ObjectAnimator.ofFloat(v, "scaleY", 0.2f, 1.0f);
-
-        scaleOutX.setDuration(50);
-        scaleOutY.setDuration(50);
-
-        scaleInX.setDuration(150);
-        scaleInY.setDuration(150);
-        scaleInX.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                v.setImageResource(menu.isOpened()
-                        ? R.drawable.cwac_cam2_ic_close
-                        : R.drawable.cwac_cam2_ic_action_settings);
-            }
-        });
-
-        set.play(scaleOutX).with(scaleOutY);
-        set.play(scaleInX).with(scaleInY).after(scaleOutX);
-        set.setInterpolator(new OvershootInterpolator(2));
-        menu.setIconToggleAnimatorSet(set);
+    public enum State {
+        NORMAL, OK, PROBLEM, NEUTRAL
     }
 }

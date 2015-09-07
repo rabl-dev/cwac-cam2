@@ -90,6 +90,7 @@ abstract public class AbstractCameraActivity extends Activity {
    * devices. Defaults to false.
    */
   public static final String EXTRA_FORCE_CLASSIC="cwac_cam2_force_classic";
+  public static final String EXTRA_STATE = "cwac_cam_custom_state";
 
   protected static final String TAG_CAMERA=CustomCameraFragment.class.getCanonicalName();
   private static final int REQUEST_PERMS=13401;
@@ -358,6 +359,12 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public IntentBuilder updateMediaStore() {
       result.putExtra(EXTRA_UPDATE_MEDIA_STORE, true);
+
+      return(this);
+    }
+
+    public IntentBuilder setState(String state) {
+      result.putExtra(EXTRA_STATE, state);
 
       return(this);
     }

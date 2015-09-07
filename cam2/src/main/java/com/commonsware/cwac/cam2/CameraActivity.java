@@ -18,7 +18,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 
 /**
  * Stock activity for taking pictures. Supports the same
@@ -148,7 +147,8 @@ public class CameraActivity extends AbstractCameraActivity
   @Override
   protected CustomCameraFragment buildFragment() {
     return(CustomCameraFragment.newPictureInstance(getOutputUri(),
-        getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false)));
+        getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false),
+        getIntent().getStringExtra(EXTRA_STATE)));
   }
 
   private void removeFragments() {
