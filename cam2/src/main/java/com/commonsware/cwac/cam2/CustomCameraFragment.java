@@ -229,8 +229,8 @@ public class CustomCameraFragment extends Fragment {
         onHiddenChanged(false); // hack, since this does not get
         // called on initial display
 
-        okButton.setClickable(false);
-        problemButton.setClickable(false);
+        okButton.setEnabled(false);
+        problemButton.setEnabled(false);
 
         // Set buttons and texts if we already have a status
         switch (state) {
@@ -289,8 +289,8 @@ public class CustomCameraFragment extends Fragment {
     @SuppressWarnings("unused")
     public void onEventMainThread(CameraEngine.OpenedEvent event) {
         progress.setVisibility(View.GONE);
-        okButton.setClickable(true);
-        problemButton.setClickable(true);
+        okButton.setEnabled(true);
+        problemButton.setEnabled(true);
     }
 
     @SuppressWarnings("unused")
@@ -336,8 +336,8 @@ public class CustomCameraFragment extends Fragment {
                     getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false));
         }
 
-        okButton.setClickable(false);
-        problemButton.setClickable(false);
+        okButton.setEnabled(false);
+        problemButton.setEnabled(false);
         ctlr.takePicture(b.build());
     }
 
