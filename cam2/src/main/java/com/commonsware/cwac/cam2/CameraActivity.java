@@ -34,6 +34,7 @@ public class CameraActivity extends AbstractCameraActivity
    * to true, meaning that the user should confirm the picture.
    */
   public static final String EXTRA_CONFIRM="cwac_cam2_confirm";
+    public static final String EXTRA_STATUS="cwac_cam2_extra_status";
 
   private static final String TAG_CONFIRM=ConfirmationFragment.class.getCanonicalName();
   private static final String[] PERMS={Manifest.permission.CAMERA};
@@ -123,7 +124,7 @@ public class CameraActivity extends AbstractCameraActivity
           public void run() {
             Intent resultPath = new Intent();
             resultPath.setData(getOutputUri());
-            resultPath.putExtra("state", CustomCameraFragment.outPutState);
+            resultPath.putExtra(EXTRA_STATUS, CustomCameraFragment.outPutState);
             setResult(RESULT_OK, resultPath);
             removeFragments();
           }
