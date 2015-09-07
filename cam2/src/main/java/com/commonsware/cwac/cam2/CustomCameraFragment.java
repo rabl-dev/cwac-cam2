@@ -57,6 +57,7 @@ public class CustomCameraFragment extends Fragment {
     private boolean neutralMode;
     private boolean isVideoRecording = false;
     private State state;
+    public static String outPutState = "";
 
     public static CustomCameraFragment newPictureInstance(Uri output,
                                                           boolean updateMediaStore, String state) {
@@ -206,6 +207,7 @@ public class CustomCameraFragment extends Fragment {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                outPutState = State.OK.name();
                 performCameraAction();
             }
         });
@@ -213,6 +215,11 @@ public class CustomCameraFragment extends Fragment {
         problemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (neutralMode) {
+                    outPutState = State.NEUTRAL.name();
+                } else {
+                    outPutState = State.PROBLEM.name();
+                }
                 performCameraAction();
             }
         });

@@ -121,7 +121,10 @@ public class CameraActivity extends AbstractCameraActivity
         findViewById(android.R.id.content).post(new Runnable() {
           @Override
           public void run() {
-            setResult(RESULT_OK, new Intent().setData(getOutputUri()));
+            Intent resultPath = new Intent();
+            resultPath.setData(getOutputUri());
+            resultPath.putExtra("state", CustomCameraFragment.outPutState);
+            setResult(RESULT_OK, resultPath);
             removeFragments();
           }
         });
