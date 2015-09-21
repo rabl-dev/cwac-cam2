@@ -18,6 +18,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
+import android.widget.Toast;
 
 public class PictureActivity extends Activity
     implements PictureFragment.Contract {
@@ -30,6 +32,15 @@ public class PictureActivity extends Activity
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    if (!Environment.MEDIA_MOUNTED
+      .equals(Environment.getExternalStorageState())) {
+      Toast
+        .makeText(this, "Cannot access external storage!",
+          Toast.LENGTH_LONG)
+        .show();
+      finish();
+    }
 
     playground=(PictureFragment)getFragmentManager().findFragmentByTag(TAG_PLAYGROUND);
     result=(ResultFragment)getFragmentManager().findFragmentByTag(TAG_RESULT);

@@ -15,7 +15,10 @@
 package com.commonsware.cwac.cam2.demo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
 import com.commonsware.cwac.cam2.CameraActivity;
@@ -40,12 +44,20 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import de.greenrobot.event.EventBus;
+import com.commonsware.cwac.security.RuntimePermissionUtils;
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends Activity {
+  private static final String[] PERMS_ALL={
+    CAMERA,
+    WRITE_EXTERNAL_STORAGE
+  };
   private static final int REQUEST_PORTRAIT_RFC=1337;
   private static final int REQUEST_PORTRAIT_FFC=REQUEST_PORTRAIT_RFC+1;
   private static final int REQUEST_LANDSCAPE_RFC=REQUEST_PORTRAIT_RFC+2;
   private static final int REQUEST_LANDSCAPE_FFC=REQUEST_PORTRAIT_RFC+3;
+  private static final int RESULT_PERMS_ALL=REQUEST_PORTRAIT_RFC+4;
   private static final String STATE_PAGE="cwac_cam2_demo_page";
   private static final String STATE_TEST_ROOT="cwac_cam2_demo_test_root";
   private ViewFlipper wizardBody;
@@ -53,11 +65,25 @@ public class MainActivity extends Activity {
   private Button next;
   private File testRoot;
   private File testZip;
+  private SharedPreferences prefs;
+  private RuntimePermissionUtils utils;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    if (!Environment.MEDIA_MOUNTED
+      .equals(Environment.getExternalStorageState())) {
+      Toast
+        .makeText(this, "Cannot access external storage!",
+          Toast.LENGTH_LONG)
+        .show();
+      finish();
+    }
+
     setContentView(R.layout.main);
+
+    utils=new RuntimePermissionUtils(this);
 
     wizardBody=(ViewFlipper)findViewById(R.id.wizard_body);
     previous=(Button)findViewById(R.id.previous);
@@ -77,6 +103,10 @@ public class MainActivity extends Activity {
     }
 
     testZip=new File(testRoot.getAbsolutePath()+".zip");
+
+    if (!haveNecessaryPermissions() && utils.useRuntimePermissions()) {
+      requestPermissions(PERMS_ALL, RESULT_PERMS_ALL);
+    }
 
     handlePage();
   }
@@ -98,10 +128,20 @@ public class MainActivity extends Activity {
   @Override
   protected void onDestroy() {
     if (!isChangingConfigurations()) {
-      delete(testRoot);
-    }
+      if (testRoot.exists()) {
+        delete(testRoot);
+      }
 
-    testZip.delete();
+      if (testZip.exists()) {
+        testZip.delete();
+
+        MediaScannerConnection.scanFile(
+          this,
+          new String[]{testZip.getAbsolutePath()},
+          null,
+          null);
+      }
+    }
 
     super.onDestroy();
   }
@@ -111,7 +151,8 @@ public class MainActivity extends Activity {
     super.onSaveInstanceState(outState);
 
     outState.putInt(STATE_PAGE, wizardBody.getDisplayedChild());
-    outState.putString(STATE_TEST_ROOT, testRoot.getAbsolutePath());
+    outState.putString(STATE_TEST_ROOT,
+      testRoot.getAbsolutePath());
   }
 
   @Override
@@ -151,6 +192,22 @@ public class MainActivity extends Activity {
         handlePage();
         break;
     }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+                                         String[] permissions,
+                                         int[] grantResults) {
+    if (!haveNecessaryPermissions()) {
+      Toast.makeText(this, R.string.msg_perms_missing,
+        Toast.LENGTH_LONG).show();
+      finish();
+    }
+  }
+
+  private boolean haveNecessaryPermissions() {
+    return(utils.hasPermission(CAMERA) &&
+      utils.hasPermission(WRITE_EXTERNAL_STORAGE));
   }
 
   private void handlePage() {
@@ -221,9 +278,11 @@ public class MainActivity extends Activity {
 
         i.setType("application/zip");
         i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(testZip));
-        i.putExtra(Intent.EXTRA_SUBJECT, "CWAC-Cam2 Test Results");
+        i.putExtra(Intent.EXTRA_SUBJECT,
+          "CWAC-Cam2 Test Results");
 
-        startActivity(Intent.createChooser(i, "Share Test Results"));
+        startActivity(
+          Intent.createChooser(i, "Share Test Results"));
       }
     });
   }
@@ -270,7 +329,7 @@ public class MainActivity extends Activity {
   private void handleCompletionPage() {
     next.setEnabled(false);
     previous.setEnabled(false);
-    new CompleteOutputThread(testRoot, testZip).start();
+    new CompleteOutputThread(this, testRoot, testZip).start();
   }
 
   // inspired by http://pastebin.com/PqJyzQUx
@@ -281,7 +340,7 @@ public class MainActivity extends Activity {
    * @param f The directory (or file) to delete
    * @return true if the delete succeeded, false otherwise
    */
-  public static boolean delete(File f) {
+  public boolean delete(File f) {
     if (f.isDirectory()) {
       for (File child : f.listFiles()) {
         if (!delete(child)) {
@@ -290,30 +349,50 @@ public class MainActivity extends Activity {
       }
     }
 
-    return(f.delete());
+    boolean result=f.delete();
+
+    MediaScannerConnection.scanFile(
+      this,
+      new String[]{f.getAbsolutePath()},
+      null,
+      null);
+
+    return(result);
   }
 
   // based on http://stackoverflow.com/a/16646691/115145
 
-  private static void zipDirectory(File dir, File zipFile) throws IOException {
+  private static void zipDirectory(Context ctxt, File dir,
+                                   File zipFile) throws IOException {
     FileOutputStream fout = new FileOutputStream(zipFile);
     ZipOutputStream zout = new ZipOutputStream(fout);
-    zipSubDirectory("", dir, zout);
+    zipSubDirectory(ctxt, "", dir, zout);
     zout.flush();
     fout.getFD().sync();
     zout.close();
   }
 
-  private static void zipSubDirectory(String basePath, File dir, ZipOutputStream zout) throws IOException {
+  private static void zipSubDirectory(Context ctxt,
+                                      String basePath, File dir,
+                                      ZipOutputStream zout)
+    throws IOException {
     byte[] buffer = new byte[4096];
     File[] files = dir.listFiles();
+
     for (File file : files) {
       if (file.isDirectory()) {
         String path = basePath + file.getName() + "/";
         zout.putNextEntry(new ZipEntry(path));
-        zipSubDirectory(path, file, zout);
+        zipSubDirectory(ctxt, path, file, zout);
         zout.closeEntry();
-      } else {
+      }
+      else {
+        MediaScannerConnection.scanFile(
+          ctxt,
+          new String[]{file.getAbsolutePath()},
+          null,
+          null);
+
         FileInputStream fin = new FileInputStream(file);
         zout.putNextEntry(new ZipEntry(basePath + file.getName()));
         int length;
@@ -347,10 +426,12 @@ public class MainActivity extends Activity {
   private static class CompleteOutputThread extends Thread {
     private final File testRoot;
     private final File testZip;
+    private final Context ctxt;
 
-    CompleteOutputThread(File testRoot, File testZip) {
+    CompleteOutputThread(Context ctxt, File testRoot, File testZip) {
       this.testRoot=testRoot;
       this.testZip=testZip;
+      this.ctxt=ctxt.getApplicationContext();
     }
 
     @Override
@@ -368,7 +449,12 @@ public class MainActivity extends Activity {
         out.flush();
         fos.getFD().sync();
         out.close();
-        zipDirectory(testRoot, testZip);
+        zipDirectory(ctxt, testRoot, testZip);
+        MediaScannerConnection.scanFile(
+          ctxt,
+          new String[]{testZip.getAbsolutePath()},
+          null,
+          null);
       }
       catch (IOException e) {
         Log.e(getClass().getSimpleName(), "Exception writing JSON", e);
@@ -385,6 +471,9 @@ public class MainActivity extends Activity {
     String[] cpu={Build.CPU_ABI, Build.CPU_ABI2};
     String version=Build.VERSION.RELEASE;
     int api=Build.VERSION.SDK_INT;
+    String brand=Build.BRAND;
+    String model=Build.MODEL;
+    String hardware=Build.HARDWARE;
   }
 
   private static class CompleteOutputCompletedEvent {

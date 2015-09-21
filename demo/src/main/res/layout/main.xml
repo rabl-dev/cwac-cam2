@@ -5,77 +5,82 @@
   android:layout_height="match_parent"
   android:orientation="vertical">
 
-  <ViewFlipper
-    android:id="@+id/wizard_body"
+  <ScrollView
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="1">
 
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:gravity="center"
-      android:text="@string/wizard_page_1_instructions"
-      android:textAppearance="?android:attr/textAppearanceLarge"/>
-
-    <TextView
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:gravity="center"
-      android:text="@string/wizard_page_2_instructions"
-      android:textAppearance="?android:attr/textAppearanceLarge"/>
-
-    <FrameLayout
+    <ViewFlipper
+      android:id="@+id/wizard_body"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
-      <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"/>
-
-      <LinearLayout
-        android:id="@+id/results"
+      <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:gravity="center"
+        android:text="@string/wizard_page_1_instructions"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:gravity="center_horizontal"
-          android:text="@string/wizard_page_3_instructions"
-          android:textAppearance="?android:attr/textAppearanceLarge"
-          android:layout_marginBottom="8dp"/>
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/wizard_page_2_instructions"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <TextView
-          android:id="@+id/path"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:gravity="center_horizontal"
-          android:textAppearance="?android:attr/textAppearanceMedium"
-          android:layout_marginBottom="8dp"/>
+      <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <Button
-          android:id="@+id/share"
+        <ProgressBar
+          android:id="@+id/progress"
           android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center_horizontal"
-          android:text="@string/share"
-          android:layout_marginBottom="8dp"/>
+          android:layout_height="match_parent"
+          android:layout_gravity="center"/>
 
-        <CheckBox
-          android:id="@+id/delete"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center_horizontal"
-          android:text="Delete files when activity is destroyed"/>
+        <LinearLayout
+          android:id="@+id/results"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical"
+          android:visibility="gone">
 
-      </LinearLayout>
-    </FrameLayout>
-  </ViewFlipper>
+          <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_horizontal"
+            android:text="@string/wizard_page_3_instructions"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+          <TextView
+            android:id="@+id/path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+          <Button
+            android:id="@+id/share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:text="@string/share"/>
+
+          <CheckBox
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Delete files when activity is destroyed"/>
+
+        </LinearLayout>
+      </FrameLayout>
+    </ViewFlipper>
+  </ScrollView>
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -97,4 +102,5 @@
       android:layout_weight="1"
       android:text="@string/capture"/>
   </LinearLayout>
+
 </LinearLayout>

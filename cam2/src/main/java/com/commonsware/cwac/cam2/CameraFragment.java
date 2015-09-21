@@ -375,8 +375,10 @@ public class CameraFragment extends Fragment {
       @Override
       public void onAnimationStart(Animator animation) {
         v.setImageResource(menu.isOpened()
-            ? R.drawable.cwac_cam2_ic_close
-            : R.drawable.cwac_cam2_ic_action_settings);
+          ? R.drawable.cwac_cam2_ic_action_settings
+          : R.drawable.cwac_cam2_ic_close);
+        // yes, that seems backwards, but it works
+        // presumably, opened state not yet toggled
       }
     });
 

@@ -84,7 +84,7 @@ and should be added to your project automatically.
 
 Version
 -------
-This is version v0.2.1 of this library, which means it is a toddler,
+This is version v0.2.3 of this library, which means it is a toddler,
 waddling around with a goofy grin on its face.
 
 Demo
@@ -125,6 +125,8 @@ Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.2.3: reverted part of action bar divider line fix
+- v0.2.2: FAB and divider line fixes, minor demo project improvements
 - v0.2.1: added Android 6.0 runtime permission support, added missing <uses-feature> element
 - v0.2.0: added initial support for video recording, fixed aspect ratio and other bugs
 - v0.1.1: added `forceClassic()` and `updateMediaStore()`, fixed numerous issues

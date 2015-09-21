@@ -45,29 +45,29 @@ public class VideoTransaction {
   public static class Builder {
     VideoTransaction result=new VideoTransaction();
 
-    VideoTransaction build() {
+    public VideoTransaction build() {
       return(result);
     }
 
-    Builder to(File outputPath) {
+    public Builder to(File outputPath) {
       result.outputPath=outputPath;
 
       return(this);
     }
 
-    Builder quality(int quality) {
+    public Builder quality(int quality) {
       result.quality=quality;
 
       return(this);
     }
 
-    Builder sizeLimit(int sizeLimit) {
+    public Builder sizeLimit(int sizeLimit) {
       result.sizeLimit=sizeLimit;
 
       return(this);
     }
 
-    Builder durationLimit(int durationLimit) {
+    public Builder durationLimit(int durationLimit) {
       result.durationLimit=durationLimit;
 
       return(this);

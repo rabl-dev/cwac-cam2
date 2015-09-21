@@ -32,9 +32,10 @@ for using the runtime permission system. Please refer to
 or [the author's book](https://commonsware.com/Android) for more
 details.
 
-Note that, at the present time, the demo apps do not handle
-the runtime permissions, though
-[this is planned for the not-too-distant future](https://github.com/commonsguy/cwac-cam2/issues/83).
+The `demo` app implements a fairly rudimentary check for
+runtime permissions. The `demo-playground` app has
+`targetSdkVersion` set to 22, to demonstrate a "legacy" app
+using the library.
 
 ## Blocking Permissions
 

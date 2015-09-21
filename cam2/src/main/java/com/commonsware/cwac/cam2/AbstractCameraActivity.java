@@ -25,7 +25,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.FrameLayout;
 import com.commonsware.cwac.cam2.util.Utils;
 import java.io.File;
 import java.util.ArrayList;
@@ -110,6 +113,36 @@ abstract public class AbstractCameraActivity extends Activity {
 
     if (needsOverlay()) {
       getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
+      // the following is nasty stuff to get rid of the action
+      // bar drop shadow, which still exists on some devices
+      // despite going into overlay mode (Samsung Galaxy S3, I'm
+      // looking at you)
+
+      if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
+        ActionBar ab=getActionBar();
+
+        if (ab!=null) {
+          getActionBar().setElevation(0);
+        }
+      }
+      else if (Build.VERSION.SDK_INT<Build.VERSION_CODES.KITKAT) {
+/*
+        View v=findViewById(android.R.id.content);
+
+        if (v instanceof FrameLayout) {
+          v.setForeground(null);
+        }
+*/
+      }
+      else {
+        View v=((ViewGroup)getWindow().getDecorView()).getChildAt(0);
+
+        if (v!=null) {
+          v.setWillNotDraw(true);
+        }
+      }
+
     }
     else if (!needsActionBar()) {
       ActionBar ab=getActionBar();
