@@ -36,6 +36,8 @@ and what their behavior is:
 | `skipConfirm()`        | `EXTRA_CONFIRM`           | `boolean`                                 | Indicate if the user should be presented with a preview of the image and needs to accept it before proceeding (default is to show the confirmation screen) |
 | `to()`                 | `MediaStore.EXTRA_OUTPUT` | `File`                                    | Destination for picture to be written |
 | `updateMediaStore()`   | `EXTRA_UPDATE_MEDIA_STORE`| `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
+| `mirrorPreview()`      | `EXTRA_MIRROR_PREVIEW`    | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
+| `focusMode()`          | `EXTRA_FOCUS_MODE`        | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
 
 Note that `to()` is **required**.
 
@@ -43,6 +45,15 @@ Note that if you are going to use `quality()`, `sizeLimit()`, or
 `durationLimit()`, you need to call
 those first on the `IntentBuilder` before any of the others.
 This limitation will be lifted (hopefully) [in the future](https://github.com/commonsguy/cwac-cam2/issues/69).
+
+Also note that `mirrorPreview()` mirrors the preview based on the
+orientation when the activity instance was created. Since the
+library will recreate the activity on a configuration change,
+things look "normal" when the device is not being actively rotated.
+However, when the device is part-way through the rotation, before
+the configuration change kicks in, the mirroring effect starts
+becoming more of a vertical flip rather than a horizontal one.
+In short: the image will look upside-down briefly.
 
 ## Example Use of `IntentBuilder`
 

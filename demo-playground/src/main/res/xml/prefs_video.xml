@@ -5,6 +5,9 @@
     android:key="ffc"
     android:title="@string/title_ffc"/>
   <SwitchPreference
+    android:key="exact_match"
+    android:title="@string/title_exact_match"/>
+  <SwitchPreference
     android:key="updateMediaStore"
     android:title="@string/title_update_media_store"/>
   <SwitchPreference
@@ -26,5 +29,13 @@
     android:entries="@array/sizes"
     android:entryValues="@array/sizeValues"
     android:title="@string/title_size" />
+  <SwitchPreference
+    android:key="mirrorPreview"
+    android:title="@string/title_mirror_preview"/>
+  <ListPreference
+    android:key="focusMode"
+    android:entries="@array/focusModes"
+    android:entryValues="@array/focusModeValues"
+    android:title="@string/title_focus_mode" />
 
 </PreferenceScreen>

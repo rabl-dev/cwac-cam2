@@ -42,4 +42,14 @@ public interface CameraTwoConfigurator extends CameraConfigurator {
   void addToCaptureRequest(CameraCharacteristics cc,
                            boolean facingFront,
                            CaptureRequest.Builder captureBuilder);
+
+  /**
+   * Updates a preview CaptureRequest to reflect what the plugin needs.
+   *
+   * @param cc CameraCharacteristics for the camera being used
+   * @param captureBuilder the builder for the request, to be
+   *                       configured
+   */
+  void addToPreviewRequest(CameraCharacteristics cc,
+                           CaptureRequest.Builder captureBuilder);
 }

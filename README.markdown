@@ -84,8 +84,8 @@ and should be added to your project automatically.
 
 Version
 -------
-This is version v0.2.3 of this library, which means it is a toddler,
-waddling around with a goofy grin on its face.
+This is version v0.3.0 of this library, which means it is coming
+along slowly.
 
 Demo
 ----
@@ -125,6 +125,7 @@ Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.3.0: added focus modes, exact camera match option, preview mirror option, and demo app improvements
 - v0.2.3: reverted part of action bar divider line fix
 - v0.2.2: FAB and divider line fixes, minor demo project improvements
 - v0.2.1: added Android 6.0 runtime permission support, added missing <uses-feature> element

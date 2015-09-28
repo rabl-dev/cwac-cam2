@@ -14,6 +14,7 @@
 
 package com.commonsware.cwac.cam2;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ClipData;
@@ -74,12 +75,24 @@ abstract public class AbstractCameraActivity extends Activity {
    * CameraSelectionCriteria.Facing instance.
    */
   public static final String EXTRA_FACING="cwac_cam2_facing";
+
+  /**
+   * Extra name for indicating that the requested facing
+   * must be an exact match, without gracefully degrading to
+   * whatever camera happens to be available. If set to true,
+   * requests to take a picture, for which the desired camera
+   * is not available, will be cancelled. Defaults to false.
+   */
+  public static final String EXTRA_FACING_EXACT_MATCH=
+    "cwac_cam2_facing_exact_match";
+
   /**
    * Extra name for indicating whether extra diagnostic
    * information should be reported, particularly for errors.
    * Default is false.
    */
   public static final String EXTRA_DEBUG_ENABLED="cwac_cam2_debug";
+
   /**
    * Extra name for indicating if MediaStore should be updated
    * to reflect a newly-taken picture. Only relevant if
@@ -87,6 +100,7 @@ abstract public class AbstractCameraActivity extends Activity {
    */
   public static final String EXTRA_UPDATE_MEDIA_STORE=
       "cwac_cam2_update_media_store";
+
   /**
    * If set to true, forces the use of the ClassicCameraEngine
    * on Android 5.0+ devices. Has no net effect on Android 4.x
@@ -95,7 +109,24 @@ abstract public class AbstractCameraActivity extends Activity {
   public static final String EXTRA_FORCE_CLASSIC="cwac_cam2_force_classic";
   public static final String EXTRA_STATE = "cwac_cam_custom_state";
 
+
+  /**
+   * If set to true, horizontally flips or mirrors the preview.
+   * Does not change the picture or video output. Used mostly for FFC,
+   * though will be honored for any camera. Defaults to false.
+   */
+  public static final String EXTRA_MIRROR_PREVIEW="cwac_cam2_mirror_preview";
+
+  /**
+   * Extra name for focus mode to apply. Value should be one of the
+   * AbstractCameraActivity.FocusMode enum values. Default is CONTINUOUS.
+   * If the desired focus mode is not available, the device default
+   * focus mode is used.
+   */
+  public static final String EXTRA_FOCUS_MODE="cwac_cam2_focus_mode";
+
   protected static final String TAG_CAMERA=CustomCameraFragment.class.getCanonicalName();
+
   private static final int REQUEST_PERMS=13401;
   protected CustomCameraFragment cameraFrag;
 
@@ -105,6 +136,7 @@ abstract public class AbstractCameraActivity extends Activity {
    *
    * @param savedInstanceState the state of a previous instance
    */
+  @TargetApi(23)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -126,15 +158,6 @@ abstract public class AbstractCameraActivity extends Activity {
           getActionBar().setElevation(0);
         }
       }
-      else if (Build.VERSION.SDK_INT<Build.VERSION_CODES.KITKAT) {
-/*
-        View v=findViewById(android.R.id.content);
-
-        if (v instanceof FrameLayout) {
-          v.setForeground(null);
-        }
-*/
-      }
       else {
         View v=((ViewGroup)getWindow().getDecorView()).getChildAt(0);
 
@@ -152,13 +175,18 @@ abstract public class AbstractCameraActivity extends Activity {
       }
     }
 
-    String[] perms=netPermissions(getNeededPermissions());
+    if (useRuntimePermissions()) {
+      String[] perms=netPermissions(getNeededPermissions());
 
-    if (perms.length==0) {
-      init();
+      if (perms.length==0) {
+        init();
+      }
+      else {
+        requestPermissions(perms, REQUEST_PERMS);
+      }
     }
     else {
-      requestPermissions(perms, REQUEST_PERMS);
+      init();
     }
   }
 
@@ -244,9 +272,14 @@ abstract public class AbstractCameraActivity extends Activity {
     if (cameraFrag==null) {
       cameraFrag=buildFragment();
 
-      CameraController ctrl=new CameraController();
+      FocusMode focusMode=
+        (FocusMode)getIntent().getSerializableExtra(EXTRA_FOCUS_MODE);
+      CameraController ctrl=new CameraController(focusMode, isVideo());
 
       cameraFrag.setController(ctrl);
+      cameraFrag
+        .setMirrorPreview(getIntent()
+                .getBooleanExtra(EXTRA_MIRROR_PREVIEW, false));
 
       Facing facing=
         (Facing)getIntent().getSerializableExtra(EXTRA_FACING);
@@ -255,9 +288,15 @@ abstract public class AbstractCameraActivity extends Activity {
         facing=Facing.BACK;
       }
 
+      boolean match=getIntent()
+        .getBooleanExtra(EXTRA_FACING_EXACT_MATCH, false);
       CameraSelectionCriteria criteria=
-        new CameraSelectionCriteria.Builder().facing(facing).build();
-      boolean forceClassic=getIntent().getBooleanExtra(EXTRA_FORCE_CLASSIC, false);
+        new CameraSelectionCriteria.Builder()
+          .facing(facing)
+          .facingExactMatch(match)
+          .build();
+      boolean forceClassic=
+        getIntent().getBooleanExtra(EXTRA_FORCE_CLASSIC, false);
 
       ctrl.setEngine(CameraEngine.buildInstance(this, forceClassic), criteria);
       ctrl.getEngine().setDebug(getIntent().getBooleanExtra(EXTRA_DEBUG_ENABLED, false));
@@ -268,6 +307,7 @@ abstract public class AbstractCameraActivity extends Activity {
     }
   }
 
+  @TargetApi(23)
   private boolean hasPermission(String perm) {
     if (useRuntimePermissions()) {
       return(checkSelfPermission(perm)==PackageManager.PERMISSION_GRANTED);
@@ -303,6 +343,10 @@ abstract public class AbstractCameraActivity extends Activity {
     }
   }
 
+  public enum FocusMode {
+    CONTINUOUS, OFF, focusMode, EDOF
+  }
+
   public static class IntentBuilder {
     protected final Intent result;
 
@@ -336,6 +380,18 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public IntentBuilder facing(Facing facing) {
       result.putExtra(EXTRA_FACING, facing);
+
+      return(this);
+    }
+
+    /**
+     * Indicates that the desired facing value for the camera
+     * must be an exact match (and, if not, cancel the request).
+     *
+     * @return the builder, for further configuration
+     */
+    public IntentBuilder facingExactMatch() {
+      result.putExtra(EXTRA_FACING_EXACT_MATCH, true);
 
       return(this);
     }
@@ -409,6 +465,28 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public IntentBuilder forceClassic() {
       result.putExtra(EXTRA_FORCE_CLASSIC, true);
+
+      return(this);
+    }
+
+    /**
+     * Horizontally flips or mirrors the preview images.
+     *
+     * @return the builder, for further configuration
+     */
+    public IntentBuilder mirrorPreview() {
+      result.putExtra(EXTRA_MIRROR_PREVIEW, true);
+
+      return(this);
+    }
+
+    /**
+     * Sets the desired focus mode. Default is CONTINUOUS.
+     *
+     * @return the builder, for further configuration
+     */
+    public IntentBuilder focusMode(FocusMode focusMode) {
+      result.putExtra(EXTRA_FOCUS_MODE, focusMode);
 
       return(this);
     }

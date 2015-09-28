@@ -1,7 +1,23 @@
 # Compatibility Status
 
-| Device                         | Identifier                  | 0.2.0 | Issues |
-| ------------------------------ |:---------------------------:|:-----:|--------|
+## Version 0.3.x
+
+| Device                         | Identifier                  | Version | Issues |
+| ------------------------------ |:---------------------------:|:-------:|--------|
+| Amazon Kindle Fire HD 6        | `Amazon`/`full_ariel`       | 4.4.3 | |
+| Amazon Fire Phone              | `Amazon`/`juniper`          | 4.4.4 | |
+| Google Galaxy Nexus            | `samsung`/`yakju`           | 4.3   | |
+| Google Nexus 4                 | `LGE`/`occam`               | 5.1.1   | |
+| Google Nexus 5                 | `LGE`/`hammerhead`          | 5.1.1 | |
+| Google Nexus 6                 | `motorola`/`shamu`          | 5.1.1 | |
+| Google Nexus S                 | `samsung`/`soju`            | 4.1.2 | |
+| HTC One M7 GPE                 | `HTC`/`m7_google`           | 5.1     | |
+| Samsung Galaxy Pocket Neo      | `samsung`/`corsicadd`       | 4.1.2   | |
+
+## Version 0.2.x
+
+| Device                         | Identifier                  | Version | Issues |
+| ------------------------------ |:---------------------------:|:-------:|--------|
 | Amazon Kindle Fire HD 6        | `Amazon`/`full_ariel`       | 4.4.3 | |
 | Amazon Fire Phone              | `Amazon`/`juniper`          | 4.4.4 | |
 | Google Galaxy Nexus            | `samsung`/`yakju`           | 4.3   | |

@@ -14,6 +14,7 @@
 
 package com.commonsware.cwac.cam2.demo;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +69,7 @@ public class MainActivity extends Activity {
   private SharedPreferences prefs;
   private RuntimePermissionUtils utils;
 
+  @TargetApi(23)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -162,6 +164,7 @@ public class MainActivity extends Activity {
         Intent i=new CameraActivity.IntentBuilder(MainActivity.this)
             .skipConfirm()
             .facing(AbstractCameraActivity.Facing.FRONT)
+            .facingExactMatch()
             .to(new File(testRoot, "portrait-front.jpg"))
             .debug()
             .updateMediaStore()
@@ -179,6 +182,7 @@ public class MainActivity extends Activity {
         i=new CameraActivity.IntentBuilder(MainActivity.this)
             .skipConfirm()
             .facing(AbstractCameraActivity.Facing.FRONT)
+            .facingExactMatch()
             .to(new File(testRoot, "landscape-front.jpg"))
             .updateMediaStore()
             .debug()
@@ -241,6 +245,7 @@ public class MainActivity extends Activity {
     Intent i=new CameraActivity.IntentBuilder(this)
         .skipConfirm()
         .facing(AbstractCameraActivity.Facing.BACK)
+        .facingExactMatch()
         .to(new File(testRoot, "portrait-rear.jpg"))
         .updateMediaStore()
         .debug()
@@ -318,6 +323,7 @@ public class MainActivity extends Activity {
     Intent i=new CameraActivity.IntentBuilder(this)
         .skipConfirm()
         .facing(AbstractCameraActivity.Facing.BACK)
+        .facingExactMatch()
         .to(new File(testRoot, "landscape-rear.jpg"))
         .updateMediaStore()
         .debug()

@@ -63,7 +63,7 @@ public class CameraTwoEngine extends CameraEngine {
   final private Semaphore lock=new Semaphore(1);
   private CountDownLatch closeLatch=null;
   private MediaActionSound shutter=new MediaActionSound();
-  private List<CameraDescriptor> descriptors=null;
+  private List<Descriptor> descriptors=null;
 
   /**
    * Standard constructor
@@ -95,55 +95,75 @@ public class CameraTwoEngine extends CameraEngine {
     getThreadPool().execute(new Runnable() {
       @Override
       public void run() {
-        if (descriptors == null) {
-          List<CameraDescriptor> result=new ArrayList<CameraDescriptor>();
+        if (descriptors==null) {
+          List<Descriptor> result=new ArrayList<Descriptor>();
 
           try {
             for (String cameraId : mgr.getCameraIdList()) {
-              CameraCharacteristics cc=mgr.getCameraCharacteristics(cameraId);
+              CameraCharacteristics cc=
+                mgr.getCameraCharacteristics(cameraId);
               Descriptor camera=new Descriptor(cameraId, cc);
 
-              result.add(camera);
-
-              StreamConfigurationMap map=cc.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-              android.util.Size[] rawSizes=map.getOutputSizes(SurfaceTexture.class);
+              StreamConfigurationMap map=cc.get(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+              android.util.Size[] rawSizes=
+                map.getOutputSizes(SurfaceTexture.class);
               ArrayList<Size> sizes=new ArrayList<Size>();
 
               for (android.util.Size size : rawSizes) {
-                sizes.add(new Size(size.getWidth(), size.getHeight()));
+                sizes.add(
+                  new Size(size.getWidth(), size.getHeight()));
               }
 
               camera.setPreviewSizes(sizes);
-              camera.setPictureSizes(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)));
-              camera.setFacingFront(cc.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT);
+              camera.setPictureSizes(Arrays.asList(
+                map.getOutputSizes(ImageFormat.JPEG)));
+              camera.setFacingFront(
+                cc.get(CameraCharacteristics.LENS_FACING)==
+                  CameraCharacteristics.LENS_FACING_FRONT);
+              result.add(camera);
             }
 
             descriptors=result;
           }
           catch (CameraAccessException e) {
-            getBus().post(new CameraEngine.CameraDescriptorsEvent(e));
+            getBus().post(
+              new CameraEngine.CameraDescriptorsEvent(e));
 
             if (isDebug()) {
-              Log.e(getClass().getSimpleName(), "Exception accessing camera", e);
+              Log.e(getClass().getSimpleName(),
+                "Exception accessing camera", e);
             }
           }
         }
 
-        List<CameraDescriptor> result=new ArrayList<CameraDescriptor>(descriptors);
+        List<CameraDescriptor> result=
+          new ArrayList<CameraDescriptor>();
 
-        Collections.sort(result, new Comparator<CameraDescriptor>() {
-          @Override
-          public int compare(CameraDescriptor descriptor, CameraDescriptor t1) {
-            Descriptor lhs=(Descriptor)descriptor;
-            Descriptor rhs=(Descriptor)t1;
-
-            // descending, so invert normal side-ness
-
-            return(Integer.compare(rhs.getScore(criteria), lhs.getScore(criteria)));
+        for (Descriptor camera : descriptors) {
+          if (!criteria.getFacingExactMatch() ||
+            camera.getScore(criteria)>0) {
+            result.add(camera);
           }
-        });
+        }
 
-        getBus().post(new CameraEngine.CameraDescriptorsEvent(result));
+        Collections.sort(result,
+          new Comparator<CameraDescriptor>() {
+            @Override
+            public int compare(CameraDescriptor descriptor,
+                               CameraDescriptor t1) {
+              Descriptor lhs=(Descriptor)descriptor;
+              Descriptor rhs=(Descriptor)t1;
+
+              // descending, so invert normal side-ness
+
+              return (Integer.compare(rhs.getScore(criteria),
+                lhs.getScore(criteria)));
+            }
+          });
+
+        getBus().post(
+          new CameraEngine.CameraDescriptorsEvent(result));
       }
     });
   }
@@ -337,6 +357,11 @@ public class CameraTwoEngine extends CameraEngine {
           s.previewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
               CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
           // TODO: offer other flash support
+
+          Descriptor camera=(Descriptor)s.getDescriptor();
+          CameraCharacteristics cc=mgr.getCameraCharacteristics(camera.cameraId);
+
+          s.addToPreviewRequest(cc, s.previewRequestBuilder);
 
           s.previewRequest=s.previewRequestBuilder.build();
 
@@ -648,6 +673,17 @@ public class CameraTwoEngine extends CameraEngine {
       }
     }
 
+    void addToPreviewRequest(CameraCharacteristics cc,
+                             CaptureRequest.Builder captureBuilder) {
+      for (CameraPlugin plugin : getPlugins()) {
+        CameraTwoConfigurator configurator=plugin.buildConfigurator(CameraTwoConfigurator.class);
+
+        if (configurator!=null) {
+          configurator.addToPreviewRequest(cc, captureBuilder);
+        }
+      }
+    }
+
     boolean isClosed() {
       return(isClosed);
     }
@@ -683,7 +719,8 @@ public class CameraTwoEngine extends CameraEngine {
       buffer.get(bytes);
       image.close();
 
-      bus.post(new PictureTakenEvent(xact.process(new ImageContext(ctxt, bytes))));
+      bus.post(new PictureTakenEvent(xact,
+        xact.process(new ImageContext(ctxt, bytes))));
     }
   }
 }

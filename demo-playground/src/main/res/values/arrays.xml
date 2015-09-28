@@ -24,4 +24,14 @@
     <item>5242880</item>
     <item>26214400</item>
   </string-array>
+  <string-array name="focusModes">
+    <item>Continuous</item>
+    <item>Off</item>
+    <item>Extended depth-of-field</item>
+  </string-array>
+  <string-array name="focusModeValues">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+  </string-array>
 </resources>

@@ -41,8 +41,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
    * use the size of the view itself
    */
   private Size previewSize;
-
   private StateCallback stateCallback;
+  private boolean mirror=false;
 
   /**
    * Constructor, used for creating instances from Java code.
@@ -98,6 +98,10 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
   public void setStateCallback(StateCallback cb) {
     stateCallback=cb;
+  }
+
+  void setMirror(boolean mirror) {
+    this.mirror=mirror;
   }
 
   private void initListener() {
@@ -178,8 +182,9 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     float xscale=(float)newWidth/(float)viewWidth;
     float yscale=(float)newHeight/(float)viewHeight;
 
-    // android.util.Log.e("CameraView", String.format("scale=%f x %f", xscale, yscale));
     txform.setScale(xscale, yscale);
+
+    // android.util.Log.e("CameraView", String.format("scale=%f x %f", xscale, yscale));
 
     switch(rotation) {
       case Surface.ROTATION_90:
@@ -192,7 +197,25 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     }
 
     txform.postTranslate(xoff, yoff);
-    // android.util.Log.e("CameraView", String.format("translate=%d x %d", xoff, yoff));
+
+    if (mirror) {
+      if (rotation==Surface.ROTATION_90 || rotation==Surface.ROTATION_270) {
+        txform.postScale(-1, 1);
+      }
+      else {
+        txform.postScale(-1, 1);
+      }
+
+      txform.postTranslate(newWidth+xoff, 0);
+    }
+
+/*
+    android.util.Log.e("CameraView",
+      String.format("xoff=%d, yoff=%d", xoff, yoff));
+    android.util.Log.e("CameraView",
+      String.format("newWidth=%d", newWidth));
+    android.util.Log.e("CameraView", "txform="+txform.toString());
+*/
 
     setTransform(txform);
   }

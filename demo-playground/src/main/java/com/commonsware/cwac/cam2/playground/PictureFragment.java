@@ -79,6 +79,10 @@ public class PictureFragment extends PreferenceFragment {
       b.facing(AbstractCameraActivity.Facing.BACK);
     }
 
+    if (prefs.getBoolean("exact_match", false)) {
+      b.facingExactMatch();
+    }
+
     if (prefs.getBoolean("debug", false)) {
       b.debug();
     }
@@ -93,6 +97,25 @@ public class PictureFragment extends PreferenceFragment {
 
     if (prefs.getBoolean("file", false)) {
       b.to(new File(getActivity().getExternalFilesDir(null), "test.jpg"));
+    }
+
+    if (prefs.getBoolean("mirrorPreview", false)) {
+      b.mirrorPreview();
+    }
+
+    int rawFocusMode=Integer.valueOf(
+      prefs.getString("focusMode", "-1"));
+
+    switch (rawFocusMode) {
+      case 0:
+        b.focusMode(AbstractCameraActivity.FocusMode.CONTINUOUS);
+        break;
+      case 1:
+        b.focusMode(AbstractCameraActivity.FocusMode.OFF);
+        break;
+      case 2:
+        b.focusMode(AbstractCameraActivity.FocusMode.EDOF);
+        break;
     }
 
     ((Contract)getActivity()).takePicture(b.build());

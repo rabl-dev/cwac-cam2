@@ -35,7 +35,7 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class ClassicCameraEngine extends CameraEngine
     implements MediaRecorder.OnInfoListener {
-  private List<CameraDescriptor> descriptors=null;
+  private List<Descriptor> descriptors=null;
   private MediaRecorder recorder;
   private VideoTransaction xact;
 
@@ -56,14 +56,12 @@ public class ClassicCameraEngine extends CameraEngine
       public void run() {
         if (descriptors == null) {
           int count=Camera.getNumberOfCameras();
-          List<CameraDescriptor> result=new ArrayList<CameraDescriptor>();
+          List<Descriptor> result=new ArrayList<Descriptor>();
           Camera.CameraInfo info=new Camera.CameraInfo();
 
           for (int cameraId=0; cameraId < count; cameraId++) {
             Camera.getCameraInfo(cameraId, info);
             Descriptor descriptor=new Descriptor(cameraId, info);
-
-            result.add(descriptor);
 
             Camera camera=Camera.open(descriptor.getCameraId());
             Camera.Parameters params=camera.getParameters();
@@ -83,12 +81,20 @@ public class ClassicCameraEngine extends CameraEngine
 
             descriptor.setPictureSizes(sizes);
             camera.release();
+            result.add(descriptor);
           }
 
           descriptors=result;
         }
 
-        List<CameraDescriptor> result=new ArrayList<CameraDescriptor>(descriptors);
+        List<CameraDescriptor> result=new ArrayList<CameraDescriptor>();
+
+        for (Descriptor descriptor : descriptors) {
+          if (!criteria.getFacingExactMatch() ||
+            descriptor.getScore(criteria)>0) {
+            result.add(descriptor);
+          }
+        }
 
         Collections.sort(result, new Comparator<CameraDescriptor>() {
           @Override
@@ -103,7 +109,7 @@ public class ClassicCameraEngine extends CameraEngine
 
             // from Integer.compare(), which is new to API Level 19
 
-            return (lhScore < rhScore ? -1 : (lhScore == rhScore ? 0 : 1));
+            return(lhScore < rhScore ? -1 : (lhScore == rhScore ? 0 : 1));
           }
         });
 
@@ -301,7 +307,8 @@ public class ClassicCameraEngine extends CameraEngine
         @Override
         public void run() {
           camera.startPreview();
-          getBus().post(new PictureTakenEvent(xact.process(new ImageContext(ctxt, bytes))));
+          getBus().post(new PictureTakenEvent(xact,
+            xact.process(new ImageContext(ctxt, bytes))));
         }
       });
     }

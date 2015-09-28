@@ -21,6 +21,7 @@ package com.commonsware.cwac.cam2;
  */
 public class CameraSelectionCriteria {
   private AbstractCameraActivity.Facing facing;
+  private boolean facingExactMatch=false;
 
   /**
    * Getter method for the facing value, indicating if we
@@ -31,6 +32,14 @@ public class CameraSelectionCriteria {
    */
   public AbstractCameraActivity.Facing getFacing() {
     return(facing);
+  }
+
+  /**
+   * @return true if the requested facing camera must be an
+   * exact match, false otherwise
+   */
+  public boolean getFacingExactMatch() {
+    return(facingExactMatch);
   }
 
   /**
@@ -50,6 +59,19 @@ public class CameraSelectionCriteria {
      */
     public Builder facing(AbstractCameraActivity.Facing facing) {
       criteria.facing=facing;
+
+      return(this);
+    }
+
+    /**
+     * Setter for indicating if the requested facing value must
+     * be an exact match or not. Defaults to false.
+     *
+     * @param match true if must be an exact match, false otherwise
+     * @return the builder, for chained calls
+     */
+    public Builder facingExactMatch(boolean match) {
+      criteria.facingExactMatch=match;
 
       return(this);
     }

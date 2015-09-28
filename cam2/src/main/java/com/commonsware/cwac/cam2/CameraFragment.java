@@ -55,6 +55,7 @@ public class CameraFragment extends Fragment {
   private FloatingActionButton fabSwitch;
   private View progress;
   private boolean isVideoRecording=false;
+  private boolean mirrorPreview=false;
 
   public static CameraFragment newPictureInstance(Uri output,
                                                   boolean updateMediaStore) {
@@ -241,6 +242,17 @@ public class CameraFragment extends Fragment {
     this.ctlr=ctlr;
   }
 
+  /**
+   * Indicates if we should mirror the preview or not. Defaults
+   * to false.
+   *
+   * @param mirror true if we should horizontally mirror the
+   *               preview, false otherwise
+   */
+  public void setMirrorPreview(boolean mirror) {
+    this.mirrorPreview=mirror;
+  }
+
   @SuppressWarnings("unused")
   public void onEventMainThread(CameraController.ControllerReadyEvent event) {
     if (event.isEventForController(ctlr)) {
@@ -344,11 +356,13 @@ public class CameraFragment extends Fragment {
     LinkedList<CameraView> cameraViews=new LinkedList<CameraView>();
     CameraView cv=(CameraView)previewStack.getChildAt(0);
 
+    cv.setMirror(mirrorPreview);
     cameraViews.add(cv);
 
     for (int i=1; i < ctlr.getNumberOfCameras(); i++) {
       cv=new CameraView(getActivity());
       cv.setVisibility(View.INVISIBLE);
+      cv.setMirror(mirrorPreview);
       previewStack.addView(cv);
       cameraViews.add(cv);
     }

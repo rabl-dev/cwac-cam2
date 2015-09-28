@@ -5,18 +5,27 @@ import android.hardware.camera2.CaptureRequest;
 import android.media.ImageReader;
 
 /**
- * Stub implementation of CameraTwoConfigurator, to help ease the
- * implementation of this interface. Just extend this class and
- * override the specific methods that your plugin needs.
+ * Stub implementation of CameraTwoConfigurator, to help ease
+ * the implementation of this interface. Just extend this class
+ * and override the specific methods that your plugin needs.
  */
-public class SimpleCameraTwoConfigurator implements CameraTwoConfigurator {
+public class SimpleCameraTwoConfigurator
+  implements CameraTwoConfigurator {
   @Override
   public ImageReader buildImageReader() {
     return null;
   }
 
   @Override
-  public void addToCaptureRequest(CameraCharacteristics cc, boolean facingFront, CaptureRequest.Builder captureBuilder) {
+  public void addToCaptureRequest(CameraCharacteristics cc,
+                                  boolean facingFront,
+                                  CaptureRequest.Builder captureBuilder) {
+
+  }
+
+  @Override
+  public void addToPreviewRequest(CameraCharacteristics cc,
+                                  CaptureRequest.Builder captureBuilder) {
 
   }
 }

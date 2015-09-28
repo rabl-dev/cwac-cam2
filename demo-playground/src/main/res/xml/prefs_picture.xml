@@ -5,6 +5,9 @@
     android:key="ffc"
     android:title="@string/title_ffc"/>
   <SwitchPreference
+    android:key="exact_match"
+    android:title="@string/title_exact_match"/>
+  <SwitchPreference
     android:key="file"
     android:title="@string/title_file"
     android:summary="@string/summary_file"/>
@@ -21,5 +24,13 @@
   <SwitchPreference
     android:key="forceClassic"
     android:title="@string/title_force_classic"/>
+  <SwitchPreference
+    android:key="mirrorPreview"
+    android:title="@string/title_mirror_preview"/>
+  <ListPreference
+    android:key="focusMode"
+    android:entries="@array/focusModes"
+    android:entryValues="@array/focusModeValues"
+    android:title="@string/title_focus_mode" />
 
 </PreferenceScreen>

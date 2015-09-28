@@ -18,9 +18,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.Log;
-import java.io.File;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -128,10 +126,13 @@ abstract public class CameraEngine {
    * an exception accessing the camera.
    */
   public static class PictureTakenEvent extends CrashableEvent {
-    private ImageContext imageContext=null;
+    private ImageContext imageContext;
+    private PictureTransaction xact;
 
-    public PictureTakenEvent(ImageContext imageContext) {
+    public PictureTakenEvent(PictureTransaction xact,
+                             ImageContext imageContext) {
       super();
+      this.xact=xact;
       this.imageContext=imageContext;
     }
 
@@ -141,6 +142,10 @@ abstract public class CameraEngine {
 
     public ImageContext getImageContext() {
       return(imageContext);
+    }
+
+    public PictureTransaction getPictureTransaction() {
+      return(xact);
     }
   }
 

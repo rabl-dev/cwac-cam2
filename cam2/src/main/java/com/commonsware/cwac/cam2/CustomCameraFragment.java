@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2015 CommonsWare, LLC
- * <p>
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,6 +58,7 @@ public class CustomCameraFragment extends Fragment {
     private boolean isVideoRecording = false;
     private State state;
     public static String outPutState = "";
+    private boolean mirrorPreview = false;
 
     public static CustomCameraFragment newPictureInstance(Uri output,
                                                           boolean updateMediaStore, String state) {
@@ -152,6 +153,17 @@ public class CustomCameraFragment extends Fragment {
                 problemButton.setEnabled(true);
             }
         }
+    }
+
+    /**
+     * Indicates if we should mirror the preview or not. Defaults
+     * to false.
+     *
+     * @param mirror true if we should horizontally mirror the
+     *               preview, false otherwise
+     */
+    public void setMirrorPreview(boolean mirror) {
+        this.mirrorPreview = mirror;
     }
 
     /**
@@ -380,11 +392,13 @@ public class CustomCameraFragment extends Fragment {
         LinkedList<CameraView> cameraViews = new LinkedList<CameraView>();
         CameraView cv = (CameraView) previewStack.getChildAt(0);
 
+        cv.setMirror(mirrorPreview);
         cameraViews.add(cv);
 
         for (int i = 1; i < ctlr.getNumberOfCameras(); i++) {
             cv = new CameraView(getActivity());
             cv.setVisibility(View.INVISIBLE);
+            cv.setMirror(mirrorPreview);
             previewStack.addView(cv);
             cameraViews.add(cv);
         }

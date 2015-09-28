@@ -84,6 +84,10 @@ public class VideoFragment extends PreferenceFragment {
       b.facing(AbstractCameraActivity.Facing.BACK);
     }
 
+    if (prefs.getBoolean("exact_match", false)) {
+      b.facingExactMatch();
+    }
+
     if (prefs.getBoolean("debug", false)) {
       b.debug();
     }
@@ -106,6 +110,25 @@ public class VideoFragment extends PreferenceFragment {
 
     if (sizeLimit!=null) {
       b.sizeLimit(Integer.parseInt(sizeLimit));
+    }
+
+    if (prefs.getBoolean("mirrorPreview", false)) {
+      b.mirrorPreview();
+    }
+
+    int rawFocusMode=Integer.valueOf(
+      prefs.getString("focusMode", "-1"));
+
+    switch (rawFocusMode) {
+      case 0:
+        b.focusMode(AbstractCameraActivity.FocusMode.CONTINUOUS);
+        break;
+      case 1:
+        b.focusMode(AbstractCameraActivity.FocusMode.OFF);
+        break;
+      case 2:
+        b.focusMode(AbstractCameraActivity.FocusMode.EDOF);
+        break;
     }
 
     ((Contract)getActivity()).takeVideo(b.build());
