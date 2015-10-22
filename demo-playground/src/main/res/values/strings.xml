@@ -18,5 +18,7 @@
 	<string name="title_mirror_preview">Mirror Preview</string>
 	<string name="title_exact_match">Fail if no camera match</string>
 	<string name="title_focus_mode">Focus Mode</string>
+	<string name="menu_switch_video">Switch to Video</string>
+	<string name="menu_switch_picture">Switch to Picture</string>
 
 </resources>

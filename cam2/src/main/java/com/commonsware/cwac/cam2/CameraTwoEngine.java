@@ -54,6 +54,7 @@ import de.greenrobot.event.EventBus;
  * Implementation of a CameraEngine that supports the
  * Android 5.0+ android.hardware.camera2 API.
  */
+@SuppressWarnings("ResourceType")
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class CameraTwoEngine extends CameraEngine {
   private CameraManager mgr;

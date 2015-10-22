@@ -298,6 +298,12 @@ abstract public class AbstractCameraActivity extends Activity {
       boolean forceClassic=
         getIntent().getBooleanExtra(EXTRA_FORCE_CLASSIC, false);
 
+      if ("samsung".equals(Build.MANUFACTURER) &&
+          ("ha3gub".equals(Build.PRODUCT) ||
+          "k3gxx".equals(Build.PRODUCT))) {
+        forceClassic=true;
+      }
+
       ctrl.setEngine(CameraEngine.buildInstance(this, forceClassic), criteria);
       ctrl.getEngine().setDebug(getIntent().getBooleanExtra(EXTRA_DEBUG_ENABLED, false));
       getFragmentManager()

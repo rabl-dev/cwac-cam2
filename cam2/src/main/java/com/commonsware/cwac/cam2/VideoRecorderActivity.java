@@ -96,6 +96,13 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
     }
 
     @Override
+    public Intent build() {
+      forceClassic();
+
+      return(super.build());
+    }
+
+    @Override
     public AbstractCameraActivity.IntentBuilder to(Uri output) {
       if (!"file".equals(output.getScheme())) {
         throw new IllegalArgumentException("must be a file:/// Uri");

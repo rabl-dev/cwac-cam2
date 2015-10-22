@@ -51,6 +51,7 @@ public class PictureFragment extends PreferenceFragment {
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.actions, menu);
+    menu.findItem(R.id.video_activity).setVisible(true);
   }
 
   @Override
@@ -59,6 +60,10 @@ public class PictureFragment extends PreferenceFragment {
       takePicture();
 
       return(true);
+    }
+    else if (item.getItemId()==R.id.video_activity) {
+      startActivity(new Intent(getActivity(), VideoActivity.class)
+        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
 
     return super.onOptionsItemSelected(item);

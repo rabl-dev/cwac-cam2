@@ -6,4 +6,16 @@
     android:icon="@drawable/ic_camera_white_24dp"
     android:showAsAction="always"
     android:title="@string/take_picture"/>
+  <item
+    android:id="@+id/picture_activity"
+    android:icon="@drawable/ic_camera_alt_white_24dp"
+    android:showAsAction="always"
+    android:title="@string/menu_switch_picture"
+    android:visible="false"/>
+  <item
+    android:id="@+id/video_activity"
+    android:icon="@drawable/ic_videocam_white_24dp"
+    android:showAsAction="always"
+    android:title="@string/menu_switch_video"
+    android:visible="false"/>
 </menu>

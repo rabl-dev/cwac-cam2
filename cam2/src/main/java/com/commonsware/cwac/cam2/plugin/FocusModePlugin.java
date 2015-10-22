@@ -155,7 +155,14 @@ public class FocusModePlugin implements CameraPlugin {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
       }
 
-Log.e("commonsware", "desiredMode="+Integer.toString(desiredMode));
+      if ("Sony".equals(Build.MANUFACTURER) &&
+          "C6603".equals(Build.PRODUCT)) {
+        desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
+      }
+      else if ("htc".equals(Build.MANUFACTURER) &&
+        "volantis".equals(Build.PRODUCT)) {
+        desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
+      }
 
       boolean itsAllGood=false;
 
@@ -165,8 +172,6 @@ Log.e("commonsware", "desiredMode="+Integer.toString(desiredMode));
           break;
         }
       }
-
-Log.e("commonsware", "itsAllGood="+Boolean.toString(itsAllGood));
 
       if (itsAllGood) {
         captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,

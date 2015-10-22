@@ -18,7 +18,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -32,6 +31,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
 import com.commonsware.cwac.cam2.CameraActivity;
+import com.commonsware.cwac.security.RuntimePermissionUtils;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.io.BufferedWriter;
@@ -45,7 +45,6 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import de.greenrobot.event.EventBus;
-import com.commonsware.cwac.security.RuntimePermissionUtils;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -66,7 +65,6 @@ public class MainActivity extends Activity {
   private Button next;
   private File testRoot;
   private File testZip;
-  private SharedPreferences prefs;
   private RuntimePermissionUtils utils;
 
   @TargetApi(23)
@@ -158,19 +156,25 @@ public class MainActivity extends Activity {
   }
 
   @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+  protected void onActivityResult(final int requestCode,
+                                  final int resultCode,
+                                  final Intent data) {
     switch(requestCode) {
       case REQUEST_PORTRAIT_RFC:
-        Intent i=new CameraActivity.IntentBuilder(MainActivity.this)
-            .skipConfirm()
-            .facing(AbstractCameraActivity.Facing.FRONT)
-            .facingExactMatch()
-            .to(new File(testRoot, "portrait-front.jpg"))
-            .debug()
-            .updateMediaStore()
-            .build();
+        Runnable r=new Runnable() {
+          @Override
+          public void run() {
+            capturePortraitFFC();
+          }
+        };
 
-        startActivityForResult(i, REQUEST_PORTRAIT_FFC);
+        if (resultCode==Activity.RESULT_CANCELED) {
+          wizardBody.postDelayed(r, 2000);
+        }
+        else {
+          r.run();
+        }
+
         break;
 
       case REQUEST_PORTRAIT_FFC:
@@ -179,16 +183,20 @@ public class MainActivity extends Activity {
         break;
 
       case REQUEST_LANDSCAPE_RFC:
-        i=new CameraActivity.IntentBuilder(MainActivity.this)
-            .skipConfirm()
-            .facing(AbstractCameraActivity.Facing.FRONT)
-            .facingExactMatch()
-            .to(new File(testRoot, "landscape-front.jpg"))
-            .updateMediaStore()
-            .debug()
-            .build();
+        r=new Runnable() {
+          @Override
+          public void run() {
+            captureLandscapeFFC();
+          }
+        };
 
-        startActivityForResult(i, REQUEST_LANDSCAPE_FFC);
+        if (resultCode==Activity.RESULT_CANCELED) {
+          wizardBody.postDelayed(r, 2000);
+        }
+        else {
+          r.run();
+        }
+
         break;
 
       case REQUEST_LANDSCAPE_FFC:
@@ -330,6 +338,32 @@ public class MainActivity extends Activity {
         .build();
 
     startActivityForResult(i, REQUEST_LANDSCAPE_RFC);
+  }
+
+  private void capturePortraitFFC() {
+    Intent i=new CameraActivity.IntentBuilder(MainActivity.this)
+      .skipConfirm()
+      .facing(AbstractCameraActivity.Facing.FRONT)
+      .facingExactMatch()
+      .to(new File(testRoot, "portrait-front.jpg"))
+      .debug()
+      .updateMediaStore()
+      .build();
+
+    startActivityForResult(i, REQUEST_PORTRAIT_FFC);
+  }
+
+  private void captureLandscapeFFC() {
+    Intent i=new CameraActivity.IntentBuilder(MainActivity.this)
+      .skipConfirm()
+      .facing(AbstractCameraActivity.Facing.FRONT)
+      .facingExactMatch()
+      .to(new File(testRoot, "landscape-front.jpg"))
+      .updateMediaStore()
+      .debug()
+      .build();
+
+    startActivityForResult(i, REQUEST_LANDSCAPE_FFC);
   }
 
   private void handleCompletionPage() {

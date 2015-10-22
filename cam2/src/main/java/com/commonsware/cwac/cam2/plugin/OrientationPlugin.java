@@ -131,7 +131,14 @@ public class OrientationPlugin implements CameraPlugin {
       }
 
       // camera.setDisplayOrientation(displayOrientation);
-      camera.setDisplayOrientation(90); // seems to work better...
+
+      if ("samsung".equals(Build.MANUFACTURER) &&
+        "sf2wifixx".equals(Build.PRODUCT)) {
+        camera.setDisplayOrientation(0);
+      }
+      else {
+        camera.setDisplayOrientation(90); // seems to work better...
+      }
 
       int outputOrientation;
 

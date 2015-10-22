@@ -24,7 +24,7 @@ The #1 objective of this library is maximum compatibility with hardware. As such
 this library will not be suitable for all use cases.
 
 The targeted use case is an app that might otherwise have relied upon
-`ACTION_IMAGE_CAPTURE`/`ACTION_VIDEO_CAPTURE`, but needs greater reliablilty and somewhat greater
+`ACTION_IMAGE_CAPTURE`/`ACTION_VIDEO_CAPTURE`, but needs greater reliability and somewhat greater
 control (e.g., capture images directly to internal storage).
 
 If you are trying to write "a camera app" &mdash; an app whose primary job is
@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.commonsware.cwac:cam2:0.2.+'
+    compile 'com.commonsware.cwac:cam2:0.3.+'
 }
 ```
 
@@ -69,6 +69,11 @@ While there are other `public` classes and methods in the library,
 ones that *may* be exposed as part of a public API in the future,
 **they are not supported at the present time**.
 
+**NOTE**: Ensure that you do not block hardware acceleration for
+the library-provided activities. In other words, do not have
+`android:hardwareAccelerated="false"` for your whole
+`<application>` in the manifest.
+
 Tested Devices
 --------------
 The [compatibility status page](docs/CompatibilityStatus.md) outlines
@@ -82,9 +87,23 @@ action button and floating action menu implementation) and
 library). Both are listed as dependencies in the AAR artifact metadata
 and should be added to your project automatically.
 
+ProGuard
+--------
+It is recommended that you not obfuscate the classes in CWAC libraries:
+
+```
+-keep class com.commonsware.cwac.** { *; }
+```
+
+If you feel that obfuscating open source code makes sense,
+at minimum you will need to employ
+[appropriate rules](https://github.com/krschultz/android-proguard-snippets/blob/master/libraries/proguard-eventbus.pro)
+to prevent greenrobot's EventBus code, and this library's
+use of it, from being obfuscated.
+
 Version
 -------
-This is version v0.3.0 of this library, which means it is coming
+This is version v0.3.2 of this library, which means it is coming
 along slowly.
 
 Demo
@@ -125,6 +144,8 @@ Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.3.2: bug fixes
+- v0.3.1: fixed bugs related to Nexus 7 (2012), SONY Xperia Z, and two Samsung models
 - v0.3.0: added focus modes, exact camera match option, preview mirror option, and demo app improvements
 - v0.2.3: reverted part of action bar divider line fix
 - v0.2.2: FAB and divider line fixes, minor demo project improvements

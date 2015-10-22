@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.TextureView;
@@ -31,7 +32,7 @@ import com.commonsware.cwac.cam2.util.Size;
  * maintaining aspect ratios and dealing with full-bleed previews.
  */
 public class CameraView extends TextureView implements TextureView.SurfaceTextureListener {
-  interface StateCallback {
+  public interface StateCallback {
     void onReady(CameraView cv);
     void onDestroyed(CameraView cv);
   }
@@ -100,7 +101,7 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     stateCallback=cb;
   }
 
-  void setMirror(boolean mirror) {
+  public void setMirror(boolean mirror) {
     this.mirror=mirror;
   }
 
@@ -146,13 +147,12 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
   private void adjustAspectRatio(int videoWidth, int videoHeight,
                                  int rotation) {
-    // android.util.Log.e("CameraView", String.format("video=%d x %d", videoWidth, videoHeight));
+    boolean isDefaultLandscape=isDeviceDefaultOrientationLandscape(getContext());
 
-    if (!isDeviceDefaultOrientationLandscape(getContext())) {
+    if (!isDefaultLandscape) {
       int temp=videoWidth;
       videoWidth=videoHeight;
       videoHeight=temp;
-      // android.util.Log.e("CameraView", String.format("video after flip=%d x %d", videoWidth, videoHeight));
     }
 
     int viewWidth=getWidth();
@@ -169,9 +169,6 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
       newHeight=(int)(viewWidth*aspectRatio);
     }
 
-    // android.util.Log.e("CameraView", String.format("view=%d x %d", viewWidth, viewHeight));
-    // android.util.Log.e("CameraView", String.format("new=%d x %d", newWidth, newHeight));
-
     int xoff=(viewWidth-newWidth)/2;
     int yoff=(viewHeight-newHeight)/2;
 
@@ -183,8 +180,6 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     float yscale=(float)newHeight/(float)viewHeight;
 
     txform.setScale(xscale, yscale);
-
-    // android.util.Log.e("CameraView", String.format("scale=%f x %f", xscale, yscale));
 
     switch(rotation) {
       case Surface.ROTATION_90:
@@ -209,14 +204,6 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
       txform.postTranslate(newWidth+xoff, 0);
     }
 
-/*
-    android.util.Log.e("CameraView",
-      String.format("xoff=%d, yoff=%d", xoff, yoff));
-    android.util.Log.e("CameraView",
-      String.format("newWidth=%d", newWidth));
-    android.util.Log.e("CameraView", "txform="+txform.toString());
-*/
-
     setTransform(txform);
   }
 
@@ -235,7 +222,8 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
         rotation == Surface.ROTATION_270) &&
         config.orientation == Configuration.ORIENTATION_PORTRAIT;
 
-    return(defaultLandsacpeAndIsInLandscape || defaultLandscapeAndIsInPortrait);
+    return(defaultLandsacpeAndIsInLandscape ||
+      defaultLandscapeAndIsInPortrait);
   }
 }
 
