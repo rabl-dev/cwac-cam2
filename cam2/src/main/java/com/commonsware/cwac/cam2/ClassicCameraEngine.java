@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.util.Log;
 import com.commonsware.cwac.cam2.util.Size;
 import java.io.IOException;
@@ -76,7 +77,11 @@ public class ClassicCameraEngine extends CameraEngine
             sizes=new ArrayList<Size>();
 
             for (Camera.Size size : params.getSupportedPictureSizes()) {
-              sizes.add(new Size(size.width, size.height));
+              if (!"samsung".equals(Build.MANUFACTURER) ||
+                  !"jflteuc".equals(Build.PRODUCT) ||
+                  size.width<2048) {
+                sizes.add(new Size(size.width, size.height));
+              }
             }
 
             descriptor.setPictureSizes(sizes);

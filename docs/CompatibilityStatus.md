@@ -28,12 +28,15 @@
 | Samsung Galaxy Note 3 SM-N900  | `samsung`/`ha3gub`          | 5.0   | |
 | Samsung Galaxy Pocket Neo      | `samsung`/`corsicadd`       | 4.1.2   | |
 | Samsung Galaxy S III           | `samsung`/`d2lterefreshspr` | 4.4.2 | |
+| Samsung Galaxy S III           | `samsung`/`d2tmo`           | 4.3   |
 | Samsung Galaxy S III           | `samsung`/`d2uc`            | 4.4.2 | |
 | Samsung Galaxy S III           | `samsung`/`m0xx`            | 4.3   | |
 | Samsung Galaxy S4              | `samsung`/`jflteuc`         | 4.2.2 | [87](https://github.com/commonsguy/cwac-cam2/issues/87)
 | Samsung Galaxy S4 Zoom         | `samsung`/`mprojectlteuc`   | 4.2.2 | |
 | Samsung Galaxy S5              | `samsung`/`k3gxx`           | 5.0   | |
+| SONY Xperia E4 Dual (E2115)    | `Sony`/`E2115`              | 4.4.4 | |
 | SONY Xperia Z (C6603)          | `Sony`/`C6603`              | 5.1.1 | |
+| SONY Xperia Z Ultra (C6802)    | `Sony`/`C6802`              | 5.1.1 | [116](https://github.com/commonsguy/cwac-cam2/issues/116) |
 
 ## Version 0.2.x
 

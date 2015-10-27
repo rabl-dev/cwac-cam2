@@ -103,7 +103,7 @@ use of it, from being obfuscated.
 
 Version
 -------
-This is version v0.3.2 of this library, which means it is coming
+This is version v0.3.3 of this library, which means it is coming
 along slowly.
 
 Demo
@@ -120,6 +120,16 @@ where you can tweak various `IntentBuilder` configurations, then tap
 on an action bar item to take a picture using those settings. This is
 good for experimenting with the `CameraActivity` and
 `VideoRecorderActivity` capabilities.
+
+Additional Documentation
+------------------------
+[The Busy Coder's Guide to Android Development](https://commonsware.com/Android)
+contains three chapters related to this library. One is a tutorial
+for implementing Android 6.0 runtime permissions that happens to use
+this library. Another is a chapter on various ways to take pictures
+that includes coverage of this library. A third chapter explores
+the camera APIs in Android and references implementation details from
+this library.
 
 License
 -------
@@ -144,6 +154,7 @@ Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.3.3: yet more bug fixes
 - v0.3.2: bug fixes
 - v0.3.1: fixed bugs related to Nexus 7 (2012), SONY Xperia Z, and two Samsung models
 - v0.3.0: added focus modes, exact camera match option, preview mirror option, and demo app improvements
