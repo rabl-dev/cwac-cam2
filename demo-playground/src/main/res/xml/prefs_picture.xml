@@ -22,6 +22,9 @@
     android:key="debug"
     android:title="@string/title_debug"/>
   <SwitchPreference
+    android:key="debugSavePreview"
+    android:title="@string/title_save_preview"/>
+  <SwitchPreference
     android:key="forceClassic"
     android:title="@string/title_force_classic"/>
   <SwitchPreference

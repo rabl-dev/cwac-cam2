@@ -70,6 +70,14 @@ abstract public class AbstractCameraActivity extends Activity {
   abstract protected String[] getNeededPermissions();
 
   /**
+   * Configure the CameraEngine for things that are specific
+   * to a subclass.
+   *
+   * @param engine the CameraEngine to configure
+   */
+  abstract protected void configEngine(CameraEngine engine);
+
+  /**
    * Extra name for indicating what facing rule for the
    * camera you wish to use. The value should be a
    * CameraSelectionCriteria.Facing instance.
@@ -306,6 +314,8 @@ abstract public class AbstractCameraActivity extends Activity {
 
       ctrl.setEngine(CameraEngine.buildInstance(this, forceClassic), criteria);
       ctrl.getEngine().setDebug(getIntent().getBooleanExtra(EXTRA_DEBUG_ENABLED, false));
+      configEngine(ctrl.getEngine());
+
       getFragmentManager()
         .beginTransaction()
         .add(android.R.id.content, cameraFrag, TAG_CAMERA)

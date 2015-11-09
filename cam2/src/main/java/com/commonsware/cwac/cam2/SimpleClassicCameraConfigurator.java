@@ -1,6 +1,7 @@
 package com.commonsware.cwac.cam2;
 
 import android.hardware.Camera;
+import android.media.MediaRecorder;
 
 /**
  * Stub no-op implementation of ClassicCameraConfigurator,
@@ -9,8 +10,16 @@ import android.hardware.Camera;
  */
 public class SimpleClassicCameraConfigurator implements ClassicCameraConfigurator {
   @Override
-  public Camera.Parameters configure(Camera.CameraInfo info,
-                                     Camera camera, Camera.Parameters params) {
+  public Camera.Parameters configureStillCamera(
+    Camera.CameraInfo info,
+    Camera camera, Camera.Parameters params) {
     return null;
+  }
+
+  @Override
+  public void configureRecorder(int cameraId,
+                                VideoTransaction xact,
+                                MediaRecorder recorder) {
+    // no-op
   }
 }

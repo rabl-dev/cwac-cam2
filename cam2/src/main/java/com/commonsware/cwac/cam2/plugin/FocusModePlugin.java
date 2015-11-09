@@ -20,6 +20,7 @@ import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Log;
 import android.view.OrientationEventListener;
@@ -33,6 +34,7 @@ import com.commonsware.cwac.cam2.ClassicCameraConfigurator;
 import com.commonsware.cwac.cam2.PictureTransaction;
 import com.commonsware.cwac.cam2.SimpleCameraTwoConfigurator;
 import com.commonsware.cwac.cam2.SimpleClassicCameraConfigurator;
+import com.commonsware.cwac.cam2.VideoTransaction;
 
 /**
  * Plugin for managing focus modes
@@ -103,28 +105,35 @@ public class FocusModePlugin implements CameraPlugin {
      * {@inheritDoc}
      */
     @Override
-    public Camera.Parameters configure(Camera.CameraInfo info,
-                                        Camera camera, Camera.Parameters params) {
-      String desiredMode=null;
+    public Camera.Parameters configureStillCamera(
+      Camera.CameraInfo info,
+      Camera camera, Camera.Parameters params) {
+      if (params!=null) {
+        String desiredMode=null;
 
-      if (focusMode==AbstractCameraActivity.FocusMode.OFF) {
-        desiredMode=Camera.Parameters.FOCUS_MODE_FIXED;
-      }
-      else if (focusMode==AbstractCameraActivity.FocusMode.EDOF) {
-        desiredMode=Camera.Parameters.FOCUS_MODE_EDOF;
-      }
-      else if (isVideo) {
-        desiredMode=Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO;
-      }
-      else {
-        desiredMode=Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
-      }
+        if (focusMode==AbstractCameraActivity.FocusMode.OFF) {
+          desiredMode=Camera.Parameters.FOCUS_MODE_FIXED;
+        }
+        else if (focusMode==
+          AbstractCameraActivity.FocusMode.EDOF) {
+          desiredMode=Camera.Parameters.FOCUS_MODE_EDOF;
+        }
+        else if (isVideo) {
+          desiredMode=
+            Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO;
+        }
+        else {
+          desiredMode=
+            Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
+        }
 
-      if (params.getSupportedFocusModes().contains(desiredMode)) {
-        params.setFocusMode(desiredMode);
-      }
-      else {
-        Log.e("CWAC-Cam2", "no support for requested focus mode");
+        if (params.getSupportedFocusModes().contains(desiredMode)) {
+          params.setFocusMode(desiredMode);
+        }
+        else {
+          Log.e("CWAC-Cam2",
+            "no support for requested focus mode");
+        }
       }
 
       return(params);
@@ -157,12 +166,13 @@ public class FocusModePlugin implements CameraPlugin {
 
       if ("Sony".equals(Build.MANUFACTURER) &&
         ("C6603".equals(Build.PRODUCT) ||
-          "D5803".equals(Build.PRODUCT) ||
-          "C6802".equals(Build.PRODUCT))) {
+         "D5803".equals(Build.PRODUCT) ||
+         "C6802".equals(Build.PRODUCT))) {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
       }
       else if ("htc".equals(Build.MANUFACTURER) &&
-        "volantis".equals(Build.PRODUCT)) {
+        ("volantis".equals(Build.PRODUCT) ||
+         "volantisg".equals(Build.PRODUCT))) {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
       }
 

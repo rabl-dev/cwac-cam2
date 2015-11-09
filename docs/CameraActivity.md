@@ -20,16 +20,17 @@ configuration methods on `CameraActivity.IntentBuilder`, the corresponding
 extra names (defined as constants on `CameraActivity`), their default values,
 and what their behavior is:
 
-| `IntentBuilder` Method | Extra Key                 | Data Type                                 | Purpose |
-|:----------------------:|:-------------------------:|:-----------------------------------------:|---------|
-| `debug()`              | `EXTRA_DEBUG_ENABLED`     | `boolean`                                 | Indicate if extra debugging information should be dumped to LogCat (default is `false`) |
-| `facing()`             | `EXTRA_FACING`            | `AbstractCameraActivity.Facing`           | Indicate the preferred camera to start with (`BACK` or `FRONT`, default is `BACK`) |
-| `forceClassic()`       | `EXTRA_FORCE_CLASSIC`     | `boolean`                                 | Indicate if the `Camera` API should be used on Android 5.0+ devices instead of `camera2` (default is `false`) |
-| `skipConfirm()`        | `EXTRA_CONFIRM`           | `boolean`                                 | Indicate if the user should be presented with a preview of the image and needs to accept it before proceeding (default is to show the confirmation screen) |
-| `to()`                 | `MediaStore.EXTRA_OUTPUT` | `Uri` (though `to()` also accepts `File`) | Destination for picture to be written, where `null` means to return a thumbnail via the `data` extra (default is `null`) |
-| `updateMediaStore()`   | `EXTRA_UPDATE_MEDIA_STORE`| `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
-| `mirrorPreview()`      | `EXTRA_MIRROR_PREVIEW`    | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
-| `focusMode()`          | `EXTRA_FOCUS_MODE`        | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
+| `IntentBuilder` Method     | Extra Key                        | Data Type                                 | Purpose |
+|:--------------------------:|:--------------------------------:|:-----------------------------------------:|---------|
+| `debug()`                  | `EXTRA_DEBUG_ENABLED`            | `boolean`                                 | Indicate if extra debugging information should be dumped to LogCat (default is `false`) |
+| `facing()`                 | `EXTRA_FACING`                   | `AbstractCameraActivity.Facing`           | Indicate the preferred camera to start with (`BACK` or `FRONT`, default is `BACK`) |
+| `forceClassic()`           | `EXTRA_FORCE_CLASSIC`            | `boolean`                                 | Indicate if the `Camera` API should be used on Android 5.0+ devices instead of `camera2` (default is `false`) |
+| `skipConfirm()`            | `EXTRA_CONFIRM`                  | `boolean`                                 | Indicate if the user should be presented with a preview of the image and needs to accept it before proceeding (default is to show the confirmation screen) |
+| `to()`                     | `MediaStore.EXTRA_OUTPUT`        | `Uri` (though `to()` also accepts `File`) | Destination for picture to be written, where `null` means to return a thumbnail via the `data` extra (default is `null`) |
+| `updateMediaStore()`       | `EXTRA_UPDATE_MEDIA_STORE`       | `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
+| `mirrorPreview()`          | `EXTRA_MIRROR_PREVIEW`           | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
+| `focusMode()`              | `EXTRA_FOCUS_MODE`               | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
+| `debugSavePreviewFrame() ` | `EXTRA_DEBUG_SAVE_PREVIEW_FRAME` | `boolean`                                 | Indicate if a preview frame should be saved when a picture is taken (default is `false`) |
 
 Note that if you are going to use `skipConfirm()`, you need to call
 that first on the `IntentBuilder` before any of the others.

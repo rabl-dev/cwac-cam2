@@ -123,6 +123,10 @@ public class PictureFragment extends PreferenceFragment {
         break;
     }
 
+    if (prefs.getBoolean("debugSavePreview", false)) {
+      b.debugSavePreviewFrame();
+    }
+
     ((Contract)getActivity()).takePicture(b.build());
   }
 }

@@ -20,6 +20,7 @@ import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.media.ImageReader;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
@@ -27,13 +28,16 @@ import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.WindowManager;
 import com.commonsware.cwac.cam2.CameraConfigurator;
+import com.commonsware.cwac.cam2.CameraEngine;
 import com.commonsware.cwac.cam2.CameraPlugin;
 import com.commonsware.cwac.cam2.CameraSession;
 import com.commonsware.cwac.cam2.CameraTwoConfigurator;
 import com.commonsware.cwac.cam2.ClassicCameraConfigurator;
 import com.commonsware.cwac.cam2.SimpleCameraTwoConfigurator;
 import com.commonsware.cwac.cam2.SimpleClassicCameraConfigurator;
+import com.commonsware.cwac.cam2.VideoTransaction;
 import com.commonsware.cwac.cam2.util.Size;
+import de.greenrobot.event.EventBus;
 
 /**
  * Plugin for managing orientation effects on the previews
@@ -50,6 +54,12 @@ public class OrientationPlugin implements CameraPlugin {
     orientationEventListener=new OrientationEventListener(ctxt) {
       @Override
       public void onOrientationChanged(int orientation) {
+        if (lastOrientation!=orientation) {
+          EventBus
+            .getDefault()
+            .post(new CameraEngine.OrientationChangedEvent());
+        }
+
         lastOrientation=orientation;
       }
     };
@@ -99,8 +109,51 @@ public class OrientationPlugin implements CameraPlugin {
      * {@inheritDoc}
      */
     @Override
-    public Camera.Parameters configure(Camera.CameraInfo info,
-                                        Camera camera, Camera.Parameters params) {
+    public Camera.Parameters configureStillCamera(
+      Camera.CameraInfo info,
+      Camera camera, Camera.Parameters params) {
+      int displayOrientation=getDisplayOrientation(info, true);
+
+      if ("samsung".equals(Build.MANUFACTURER) &&
+        "sf2wifixx".equals(Build.PRODUCT)) {
+        camera.setDisplayOrientation(0);
+      }
+      else if (displayOrientation==180) {
+        camera.setDisplayOrientation(270);
+      }
+      else {
+        camera.setDisplayOrientation(90);
+      }
+
+      if (params!=null) {
+        int outputOrientation;
+
+        if (info.facing==Camera.CameraInfo.CAMERA_FACING_FRONT) {
+          outputOrientation=(360-displayOrientation)%360;
+        }
+        else {
+          outputOrientation=displayOrientation;
+        }
+
+        params.setRotation(outputOrientation);
+      }
+
+      return(params);
+    }
+
+    @Override
+    public void configureRecorder(int cameraId,
+                                  VideoTransaction xact,
+                                  MediaRecorder recorder) {
+      Camera.CameraInfo info=new Camera.CameraInfo();
+      Camera.getCameraInfo(cameraId, info);
+      int displayOrientation=getDisplayOrientation(info, false);
+
+      recorder.setOrientationHint(displayOrientation);
+    }
+
+    private int getDisplayOrientation(Camera.CameraInfo info,
+                                      boolean isStillCapture) {
       WindowManager mgr=(WindowManager)ctxt.getSystemService(Context.WINDOW_SERVICE);
       int rotation=mgr.getDefaultDisplay().getRotation();
       int degrees=0;
@@ -125,33 +178,16 @@ public class OrientationPlugin implements CameraPlugin {
       if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
         displayOrientation=(info.orientation + degrees) % 360;
         displayOrientation=(360 - displayOrientation) % 360;
+
+        if (!isStillCapture && displayOrientation==90) {
+          displayOrientation=270;
+        }
       }
       else {
         displayOrientation=(info.orientation - degrees + 360) % 360;
       }
 
-      // camera.setDisplayOrientation(displayOrientation);
-
-      if ("samsung".equals(Build.MANUFACTURER) &&
-        "sf2wifixx".equals(Build.PRODUCT)) {
-        camera.setDisplayOrientation(0);
-      }
-      else {
-        camera.setDisplayOrientation(90); // seems to work better...
-      }
-
-      int outputOrientation;
-
-      if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-        outputOrientation=(360 - displayOrientation) % 360;
-      }
-      else {
-        outputOrientation=displayOrientation;
-      }
-
-      params.setRotation(outputOrientation);
-
-      return(params);
+      return(displayOrientation);
     }
   }
 

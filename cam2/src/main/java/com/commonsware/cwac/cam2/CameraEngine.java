@@ -18,6 +18,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.Log;
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,6 +39,7 @@ abstract public class CameraEngine {
   private boolean isDebug=false;
   private LinkedBlockingQueue<Runnable> queue=new LinkedBlockingQueue<Runnable>();
   private ThreadPoolExecutor pool;
+  private File savePreviewFile=null;
 
   private static class CrashableEvent {
     /**
@@ -118,6 +120,10 @@ abstract public class CameraEngine {
     public ClosedEvent(Exception exception) {
       super(exception);
     }
+  }
+
+  public static class OrientationChangedEvent {
+
   }
 
   /**
@@ -233,6 +239,9 @@ abstract public class CameraEngine {
 
   abstract public void stopVideoRecording(CameraSession session) throws Exception;
 
+  abstract public void handleOrientationChange(CameraSession session,
+                                               OrientationChangedEvent event);
+
   /**
    * Builds a CameraEngine instance based on the device's
    * API level.
@@ -288,6 +297,14 @@ abstract public class CameraEngine {
    */
   public boolean isDebug() {
     return(isDebug);
+  }
+
+  public void setDebugSavePreviewFile(File savePreviewFile) {
+    this.savePreviewFile=savePreviewFile;
+  }
+
+  public File savePreviewFile() {
+    return(savePreviewFile);
   }
 
   public ThreadPoolExecutor getThreadPool() {

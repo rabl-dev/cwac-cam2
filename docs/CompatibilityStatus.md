@@ -5,12 +5,15 @@
 | Device                         | Identifier                  | Version | Issues |
 | ------------------------------ |:---------------------------:|:-------:|--------|
 | Amazon Kindle Fire HD 6        | `Amazon`/`full_ariel`       | 4.4.3   | |
+| Amazon Fire (7")               | `Amazon`/`full_ford`        | 5.1     | |
 | Amazon Fire HD 10              | `Amazon`/`full_thebes`      | 5.1     | |
 | Amazon Fire Phone              | `Amazon`/`juniper`          | 4.4.4 | |
 | Google Galaxy Nexus            | `samsung`/`yakju`           | 4.3   | |
 | Google Nexus 4                 | `LGE`/`occam`               | 5.1.1   | |
 | Google Nexus 5                 | `LGE`/`hammerhead`          | 5.1.1 | |
+| Google Nexus 5X                | `LGE`/`bullhead`            | 6.0 |
 | Google Nexus 6                 | `motorola`/`shamu`          | 5.1.1 | |
+| Google Nexus 6P                | `Huawei`/`angler`           | 6.0 |
 | Google Nexus 7 (2012)          | `asus`/`nakasi`             | 5.1.1   | |
 | Google Nexus 7 (2013)          | `asus`/`razor`              | 5.1.1 | |
 | Google Nexus 9                 | `htc`/`volantis`            | 5.1.1   | [106](https://github.com/commonsguy/cwac-cam2/issues/106) |
@@ -34,9 +37,12 @@
 | Samsung Galaxy S4              | `samsung`/`jflteuc`         | 4.2.2 | [87](https://github.com/commonsguy/cwac-cam2/issues/87)
 | Samsung Galaxy S4 Zoom         | `samsung`/`mprojectlteuc`   | 4.2.2 | |
 | Samsung Galaxy S5              | `samsung`/`k3gxx`           | 5.0   | |
+| SONY Xperia E (C1505)          | `Sony`/`C1505`              | 4.1.1 | |
 | SONY Xperia E4 Dual (E2115)    | `Sony`/`E2115`              | 4.4.4 | |
+| SONY Xperia S (LT26i)          | `Sony Ericsson`/`LT26i_1257-4921` | 4.1.2 | [97](https://github.com/commonsguy/cwac-cam2/issues/97) |
 | SONY Xperia Z (C6603)          | `Sony`/`C6603`              | 5.1.1 | |
 | SONY Xperia Z Ultra (C6802)    | `Sony`/`C6802`              | 5.1.1 | [116](https://github.com/commonsguy/cwac-cam2/issues/116) |
+| Tesco (Pegatron) hudl 2        | `Pegatron`/`HTF8A4XX`       | 4.4.2 | |
 
 ## Version 0.2.x
 

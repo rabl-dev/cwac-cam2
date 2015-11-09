@@ -275,6 +275,12 @@ public class CameraTwoEngine extends CameraEngine {
   }
 
   @Override
+  public void handleOrientationChange(CameraSession session,
+                                      OrientationChangedEvent event) {
+    // TODO
+  }
+
+  @Override
   public void recordVideo(CameraSession session, VideoTransaction xact) {
     // TODO
   }

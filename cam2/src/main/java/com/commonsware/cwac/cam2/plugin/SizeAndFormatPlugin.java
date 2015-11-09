@@ -18,7 +18,9 @@ import android.annotation.TargetApi;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.media.CamcorderProfile;
 import android.media.ImageReader;
+import android.media.MediaRecorder;
 import android.os.Build;
 import com.commonsware.cwac.cam2.CameraConfigurator;
 import com.commonsware.cwac.cam2.CameraPlugin;
@@ -27,6 +29,7 @@ import com.commonsware.cwac.cam2.CameraTwoConfigurator;
 import com.commonsware.cwac.cam2.ClassicCameraConfigurator;
 import com.commonsware.cwac.cam2.SimpleCameraTwoConfigurator;
 import com.commonsware.cwac.cam2.SimpleClassicCameraConfigurator;
+import com.commonsware.cwac.cam2.VideoTransaction;
 import com.commonsware.cwac.cam2.util.Size;
 
 /**
@@ -93,13 +96,41 @@ public class SizeAndFormatPlugin implements CameraPlugin {
      * {@inheritDoc}
      */
     @Override
-    public Camera.Parameters configure(Camera.CameraInfo info,
-                                       Camera camera, Camera.Parameters params) {
-      params.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
-      params.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
-      params.setPictureFormat(pictureFormat);
+    public Camera.Parameters configureStillCamera(
+      Camera.CameraInfo info,
+      Camera camera, Camera.Parameters params) {
+      if (params!=null) {
+        params.setPreviewSize(previewSize.getWidth(),
+          previewSize.getHeight());
+        params.setPictureSize(pictureSize.getWidth(),
+          pictureSize.getHeight());
+        params.setPictureFormat(pictureFormat);
+      }
 
       return(params);
+    }
+
+    @Override
+    public void configureRecorder(int cameraId,
+                                  VideoTransaction xact,
+                                  MediaRecorder recorder) {
+      boolean canGoHigh=CamcorderProfile.hasProfile(cameraId,
+        CamcorderProfile.QUALITY_HIGH);
+      boolean canGoLow=CamcorderProfile.hasProfile(cameraId,
+        CamcorderProfile.QUALITY_LOW);
+
+      if (canGoHigh && (xact.getQuality()==1 || !canGoLow)) {
+        recorder.setProfile(CamcorderProfile.get(cameraId,
+          CamcorderProfile.QUALITY_HIGH));
+      }
+      else if (canGoLow) {
+        recorder.setProfile(CamcorderProfile.get(cameraId,
+          CamcorderProfile.QUALITY_LOW));
+      }
+      else {
+        throw new IllegalStateException(
+          "cannot find valid CamcorderProfile");
+      }
     }
   }
 

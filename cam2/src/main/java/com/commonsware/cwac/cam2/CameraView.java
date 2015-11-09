@@ -18,8 +18,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.TextureView;
@@ -143,65 +143,53 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     }
   }
 
-  // inspired by https://github.com/google/grafika/blob/master/src/com/android/grafika/PlayMovieActivity.java
+  // based on https://github.com/googlesamples/android-Camera2Basic/blob/master/Application/src/main/java/com/example/android/camera2basic/Camera2BasicFragment.java
 
-  private void adjustAspectRatio(int videoWidth, int videoHeight,
+  private void adjustAspectRatio(int previewWidth,
+                                 int previewHeight,
                                  int rotation) {
-    boolean isDefaultLandscape=isDeviceDefaultOrientationLandscape(getContext());
-
-    if (!isDefaultLandscape) {
-      int temp=videoWidth;
-      videoWidth=videoHeight;
-      videoHeight=temp;
-    }
-
+    Matrix txform=new Matrix();
     int viewWidth=getWidth();
     int viewHeight=getHeight();
-    double aspectRatio=(double)videoHeight/(double)videoWidth;
-    int newWidth, newHeight;
+    RectF rectView=new RectF(0, 0, viewWidth, viewHeight);
+    float viewCenterX=rectView.centerX();
+    float viewCenterY=rectView.centerY();
+    boolean isDefaultLandscape=isDeviceDefaultOrientationLandscape(
+      getContext());
 
-    if (getHeight()>(int)(viewWidth*aspectRatio)) {
-      newWidth=(int)(viewHeight/aspectRatio);
-      newHeight=viewHeight;
+    if (isDefaultLandscape) {
+      int temp=previewWidth;
+      previewWidth=previewHeight;
+      previewHeight=temp;
+    }
+
+    RectF rectPreview=new RectF(0, 0, previewHeight, previewWidth);
+    float previewCenterX=rectPreview.centerX();
+    float previewCenterY=rectPreview.centerY();
+
+    if (Surface.ROTATION_90==rotation ||
+      Surface.ROTATION_270==rotation) {
+      rectPreview.offset(viewCenterX-previewCenterX,
+        viewCenterY-previewCenterY);
+
+      txform.setRectToRect(rectView, rectPreview,
+        Matrix.ScaleToFit.FILL);
+
+      float scale=Math.max((float)viewHeight/previewHeight,
+        (float)viewWidth/previewWidth);
+
+      txform.postScale(scale, scale, viewCenterX, viewCenterY);
+      txform.postRotate(90*(rotation-2), viewCenterX,
+        viewCenterY);
     }
     else {
-      newWidth=viewWidth;
-      newHeight=(int)(viewWidth*aspectRatio);
+      if (Surface.ROTATION_180==rotation) {
+        txform.postRotate(180, viewCenterX, viewCenterY);
+      }
     }
-
-    int xoff=(viewWidth-newWidth)/2;
-    int yoff=(viewHeight-newHeight)/2;
-
-    Matrix txform=new Matrix();
-
-    getTransform(txform);
-
-    float xscale=(float)newWidth/(float)viewWidth;
-    float yscale=(float)newHeight/(float)viewHeight;
-
-    txform.setScale(xscale, yscale);
-
-    switch(rotation) {
-      case Surface.ROTATION_90:
-        txform.postRotate(270, newWidth/2, newHeight/2);
-        break;
-
-      case Surface.ROTATION_270:
-        txform.postRotate(90, newWidth/2, newHeight/2);
-        break;
-    }
-
-    txform.postTranslate(xoff, yoff);
 
     if (mirror) {
-      if (rotation==Surface.ROTATION_90 || rotation==Surface.ROTATION_270) {
-        txform.postScale(-1, 1);
-      }
-      else {
-        txform.postScale(-1, 1);
-      }
-
-      txform.postTranslate(newWidth+xoff, 0);
+      txform.postScale(-1, 1, viewCenterX, viewCenterY);
     }
 
     setTransform(txform);

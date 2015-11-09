@@ -289,6 +289,13 @@ public class CameraController implements CameraView.StateCallback {
     }
   }
 
+  @SuppressWarnings("unused")
+  public void onEventMainThread(CameraEngine.OrientationChangedEvent event) {
+    if (engine!=null) {
+      engine.handleOrientationChange(session, event);
+    }
+  }
+
   /**
    * Raised if there are no available cameras on this
    * device. Consider using uses-feature elements in the

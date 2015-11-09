@@ -15,6 +15,7 @@
 package com.commonsware.cwac.cam2.playground;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -57,10 +58,19 @@ public class VideoActivity extends Activity
   }
 
   @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+  public void onActivityResult(int requestCode, int resultCode,
+                               Intent data) {
     if (requestCode==REQUEST_VIDEO) {
       if (resultCode == Activity.RESULT_OK) {
-        startActivity(new Intent(Intent.ACTION_VIEW, data.getData()));
+        Intent i=new Intent(Intent.ACTION_VIEW, data.getData());
+
+        try {
+          startActivity(i);
+        }
+        catch (ActivityNotFoundException e) {
+          i.setClass(this, VideoPlayerActivity.class);
+          startActivity(i);
+        }
       }
     }
   }
