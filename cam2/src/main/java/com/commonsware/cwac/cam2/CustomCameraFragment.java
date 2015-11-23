@@ -300,34 +300,42 @@ public class CustomCameraFragment extends Fragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CameraEngine.OpenedEvent event) {
-        progress.setVisibility(View.GONE);
-        okButton.setEnabled(true);
-        problemButton.setEnabled(true);
+        if (event.exception == null) {
+            progress.setVisibility(View.GONE);
+            okButton.setEnabled(true);
+            problemButton.setEnabled(true);
+        } else {
+            getActivity().finish();
+        }
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CameraEngine.VideoTakenEvent event) {
-        if (getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false)) {
-            final Context app = getActivity().getApplicationContext();
-            Uri output = getArguments().getParcelable(ARG_OUTPUT);
-            final String path = output.getPath();
+        if (event.exception==null) {
+            if (getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false)) {
+                final Context app=getActivity().getApplicationContext();
+                Uri output=getArguments().getParcelable(ARG_OUTPUT);
+                final String path=output.getPath();
 
-            new Thread() {
-                @Override
-                public void run() {
-                    SystemClock.sleep(2000);
-                    MediaScannerConnection.scanFile(app,
-                            new String[]{path}, new String[]{"video/mp4"},
-                            null);
-                }
-            }.start();
+                new Thread() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(2000);
+                        MediaScannerConnection.scanFile(app,
+                                new String[]{path}, new String[]{"video/mp4"},
+                                null);
+                    }
+                }.start();
+            }
+
+            isVideoRecording=false;
+//            fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
+//            fabPicture.setColorNormalResId(R.color.cwac_cam2_picture_fab);
+//            fabPicture.setColorPressedResId(R.color.cwac_cam2_picture_fab_pressed);
         }
-
-        isVideoRecording = false;
-        // TODO what?
-//        fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
-//        fabPicture.setColorNormalResId(R.color.cwac_cam2_picture_fab);
-//        fabPicture.setColorPressedResId(R.color.cwac_cam2_picture_fab_pressed);
+        else {
+            getActivity().finish();
+        }
     }
 
     protected void performCameraAction() {
