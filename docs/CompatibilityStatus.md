@@ -19,6 +19,7 @@
 | Google Nexus 9                 | `htc`/`volantis`            | 5.1.1   | [106](https://github.com/commonsguy/cwac-cam2/issues/106) |
 | Google Nexus S                 | `samsung`/`soju`            | 4.1.2 | |
 | HTC Incredible HD              | `HTC`/`htc_mecha`           | 4.0.4 | [32](https://github.com/commonsguy/cwac-cam2/issues/32) [33](https://github.com/commonsguy/cwac-cam2/issues/33) |
+| HTC One A9                     | `HTC`/`hiaeuhl_00709`       | 6.0   | |
 | HTC One M7 GPE                 | `HTC`/`m7_google`           | 5.1     | |
 | HTC One S                      | `HTC`/`tmous`               | 4.1.1 | [35](https://github.com/commonsguy/cwac-cam2/issues/35) |
 | LG G2                          | `LGE`/`g2_open_com`         | 4.4.2 | |
@@ -43,6 +44,7 @@
 | SONY Xperia Z (C6603)          | `Sony`/`C6603`              | 5.1.1 | |
 | SONY Xperia Z Ultra (C6802)    | `Sony`/`C6802`              | 5.1.1 | [116](https://github.com/commonsguy/cwac-cam2/issues/116) |
 | Tesco (Pegatron) hudl 2        | `Pegatron`/`HTF8A4XX`       | 4.4.2 | |
+| Wileyfox Swift                 | `Wileyfox`/`Swift`          | 5.1.1 (CM 12.1) | |
 
 ## Version 0.2.x
 

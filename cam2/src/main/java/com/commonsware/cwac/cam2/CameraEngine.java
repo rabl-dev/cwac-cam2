@@ -178,6 +178,44 @@ abstract public class CameraEngine {
   }
 
   /**
+   * Base class for all ¯\_(ツ)_/¯ errors triggered by camera2
+   * API operations that we really should surface to callers,
+   * but either are not tied to specific requests or happen
+   * asynchronously with respect to the request. Usually, these
+   * are bad. However, they frequently do not have useful
+   * error information associated with them, because, well,
+   * that would have been useful.
+   */
+  public static class CameraTwoGenericEvent {
+
+  }
+
+  /**
+   * Event raised if there is a problem starting up the
+   * CameraTwoEngine preview. The error field is the value passed
+   * into onError() of a CameraDevice.StateCallback object and
+   * probably means something to somebody.
+   */
+  public static class CameraTwoPreviewErrorEvent
+    extends CameraTwoGenericEvent {
+    public final int error;
+
+    CameraTwoPreviewErrorEvent(int error) {
+      this.error=error;
+    }
+  }
+
+  /**
+   * Event raised if there is a different sort of problem
+   * starting up the CameraTwoEngine preview. This will be
+   * triggered by a CameraCaptureSession.StateCallback,
+   * and there is no error information of note.
+   */
+  public static class CameraTwoPreviewFailureEvent
+    extends CameraTwoGenericEvent {
+  }
+
+  /**
    * Create a CameraSession.Builder to build a CameraSession
    * for a given CameraDescriptor. On the Builder is where you
    * indicate your desired preview size, picture size, and
@@ -258,7 +296,7 @@ abstract public class CameraEngine {
         singleton=new CameraTwoEngine(ctxt);
       }
       else {
-        singleton=new ClassicCameraEngine();
+        singleton=new ClassicCameraEngine(ctxt);
       }
     }
 

@@ -15,10 +15,12 @@
 package com.commonsware.cwac.cam2;
 
 import android.content.pm.PackageInstaller;
+import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.view.View;
+import com.commonsware.cwac.cam2.plugin.FlashModePlugin;
 import com.commonsware.cwac.cam2.plugin.FocusModePlugin;
 import com.commonsware.cwac.cam2.plugin.OrientationPlugin;
 import com.commonsware.cwac.cam2.plugin.SizeAndFormatPlugin;
@@ -45,12 +47,15 @@ public class CameraController implements CameraView.StateCallback {
   private boolean switchPending=false;
   private boolean isVideoRecording=false;
   private final AbstractCameraActivity.FocusMode focusMode;
+  private final List<FlashMode> flashModes;
   private final boolean isVideo;
 
   public CameraController(AbstractCameraActivity.FocusMode focusMode,
+                          List<FlashMode> flashModes,
                           boolean isVideo) {
     this.focusMode=focusMode==null ?
       AbstractCameraActivity.FocusMode.CONTINUOUS : focusMode;
+    this.flashModes=flashModes;
     this.isVideo=isVideo;
   }
 
@@ -244,7 +249,21 @@ public class CameraController implements CameraView.StateCallback {
       if (camera != null && cv.getWidth() > 0 && cv.getHeight() > 0) {
         previewSize=Utils.chooseOptimalSize(camera.getPreviewSizes(),
             cv.getWidth(), cv.getHeight(), largest);
-        cv.setPreviewSize(previewSize);
+
+        boolean shouldSwapPreviewDimensions=
+          cv
+            .getContext()
+            .getResources()
+            .getConfiguration().orientation==
+            Configuration.ORIENTATION_PORTRAIT;
+        Size virtualPreviewSize=previewSize;
+
+        if (shouldSwapPreviewDimensions) {
+          virtualPreviewSize=new Size(previewSize.getHeight(),
+          previewSize.getWidth());
+        }
+
+        cv.setPreviewSize(virtualPreviewSize);
       }
 
       SurfaceTexture texture=cv.getSurfaceTexture();
@@ -258,9 +277,11 @@ public class CameraController implements CameraView.StateCallback {
         session=engine
             .buildSession(cv.getContext(), camera)
             .addPlugin(new SizeAndFormatPlugin(previewSize,
-                largest, ImageFormat.JPEG))
+              largest, ImageFormat.JPEG))
             .addPlugin(new OrientationPlugin(cv.getContext()))
             .addPlugin(new FocusModePlugin(cv.getContext(), focusMode, isVideo))
+            .addPlugin(
+              new FlashModePlugin(flashModes))
             .build();
 
         engine.open(session, texture);

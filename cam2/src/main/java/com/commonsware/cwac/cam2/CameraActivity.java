@@ -89,17 +89,22 @@ public class CameraActivity extends AbstractCameraActivity
 
   @SuppressWarnings("unused")
   public void onEventMainThread(CameraEngine.PictureTakenEvent event) {
-    if (getIntent().getBooleanExtra(EXTRA_CONFIRM, true)) {
-      confirmFrag.setImage(event.getImageContext());
+    if (event.exception==null) {
+      if (getIntent().getBooleanExtra(EXTRA_CONFIRM, true)) {
+        confirmFrag.setImage(event.getImageContext());
 
-      getFragmentManager()
+        getFragmentManager()
           .beginTransaction()
           .hide(cameraFrag)
           .show(confirmFrag)
           .commit();
+      }
+      else {
+        completeRequest(event.getImageContext(), true);
+      }
     }
     else {
-      completeRequest(event.getImageContext(), true);
+      finish();
     }
   }
 
@@ -191,7 +196,8 @@ public class CameraActivity extends AbstractCameraActivity
    * Call setComponent() on the Intent if you are using your
    * own subclass of CameraActivity.
    */
-  public static class IntentBuilder extends AbstractCameraActivity.IntentBuilder {
+  public static class IntentBuilder
+    extends AbstractCameraActivity.IntentBuilder<IntentBuilder> {
     /**
      * Standard constructor. May throw a runtime exception
      * if the environment is not set up properly (see

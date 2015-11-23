@@ -33,6 +33,8 @@ import android.widget.FrameLayout;
 import com.commonsware.cwac.cam2.util.Utils;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import de.greenrobot.event.EventBus;
 
 /**
@@ -40,6 +42,18 @@ import de.greenrobot.event.EventBus;
  * for taking pictures or recording video.
  */
 abstract public class AbstractCameraActivity extends Activity {
+  /**
+   * List<FlashMode> indicating the desired flash modes,
+   * or null for always taking the default. These are
+   * considered in priority-first order (i.e., we will use
+   * the first FlashMode if the device supports it, otherwise
+   * we will use the second FlashMode, ...). If there is no
+   * match, whatever the default device behavior is will be
+   * used.
+   */
+  public static final String EXTRA_FLASH_MODES=
+    "cwac_cam2_flash_modes";
+
   /**
    * @return true if the activity wants FEATURE_ACTION_BAR_OVERLAY,
    * false otherwise
@@ -256,6 +270,11 @@ abstract public class AbstractCameraActivity extends Activity {
     finish();
   }
 
+  @SuppressWarnings("unused")
+  public void onEventMainThread(CameraEngine.CameraTwoGenericEvent event) {
+    finish();
+  }
+
   protected Uri getOutputUri() {
     Uri output=null;
 
@@ -282,7 +301,15 @@ abstract public class AbstractCameraActivity extends Activity {
 
       FocusMode focusMode=
         (FocusMode)getIntent().getSerializableExtra(EXTRA_FOCUS_MODE);
-      CameraController ctrl=new CameraController(focusMode, isVideo());
+      List<FlashMode> flashModes=
+        (List<FlashMode>)getIntent().getExtras().getSerializable(EXTRA_FLASH_MODES);
+
+      if (flashModes==null) {
+        flashModes=new ArrayList<FlashMode>();
+      }
+
+      CameraController ctrl=
+        new CameraController(focusMode, flashModes,isVideo());
 
       cameraFrag.setController(ctrl);
       cameraFrag
@@ -360,10 +387,10 @@ abstract public class AbstractCameraActivity extends Activity {
   }
 
   public enum FocusMode {
-    CONTINUOUS, OFF, focusMode, EDOF
+    CONTINUOUS, OFF, EDOF
   }
 
-  public static class IntentBuilder {
+  public static class IntentBuilder<T extends IntentBuilder> {
     protected final Intent result;
 
     /**
@@ -394,10 +421,10 @@ abstract public class AbstractCameraActivity extends Activity {
      * @param facing which camera to use
      * @return the builder, for further configuration
      */
-    public IntentBuilder facing(Facing facing) {
+    public T facing(Facing facing) {
       result.putExtra(EXTRA_FACING, facing);
 
-      return(this);
+      return((T)this);
     }
 
     /**
@@ -406,10 +433,10 @@ abstract public class AbstractCameraActivity extends Activity {
      *
      * @return the builder, for further configuration
      */
-    public IntentBuilder facingExactMatch() {
+    public T facingExactMatch() {
       result.putExtra(EXTRA_FACING_EXACT_MATCH, true);
 
-      return(this);
+      return((T)this);
     }
 
     /**
@@ -418,10 +445,10 @@ abstract public class AbstractCameraActivity extends Activity {
      *
      * @return the builder, for further configuration
      */
-    public IntentBuilder debug() {
+    public T debug() {
       result.putExtra(EXTRA_DEBUG_ENABLED, true);
 
-      return(this);
+      return((T)this);
     }
 
     /**
@@ -433,8 +460,8 @@ abstract public class AbstractCameraActivity extends Activity {
      * @param f file in which to write the picture
      * @return the builder, for further configuration
      */
-    public IntentBuilder to(File f) {
-      return(to(Uri.fromFile(f)));
+    public T to(File f) {
+      return((T)to(Uri.fromFile(f)));
     }
 
     /**
@@ -446,10 +473,10 @@ abstract public class AbstractCameraActivity extends Activity {
      * @param output Uri to which to write the picture
      * @return the builder, for further configuration
      */
-    public IntentBuilder to(Uri output) {
+    public T to(Uri output) {
       result.putExtra(MediaStore.EXTRA_OUTPUT, output);
 
-      return(this);
+      return((T)this);
     }
 
     /**
@@ -462,10 +489,10 @@ abstract public class AbstractCameraActivity extends Activity {
      *
      * @return the builder, for further configuration
      */
-    public IntentBuilder updateMediaStore() {
+    public T updateMediaStore() {
       result.putExtra(EXTRA_UPDATE_MEDIA_STORE, true);
 
-      return(this);
+      return((T)this);
     }
 
     public IntentBuilder setState(String state) {
@@ -479,10 +506,10 @@ abstract public class AbstractCameraActivity extends Activity {
      *
      * @return the builder, for further configuration
      */
-    public IntentBuilder forceClassic() {
+    public T forceClassic() {
       result.putExtra(EXTRA_FORCE_CLASSIC, true);
 
-      return(this);
+      return((T)this);
     }
 
     /**
@@ -490,10 +517,10 @@ abstract public class AbstractCameraActivity extends Activity {
      *
      * @return the builder, for further configuration
      */
-    public IntentBuilder mirrorPreview() {
+    public T mirrorPreview() {
       result.putExtra(EXTRA_MIRROR_PREVIEW, true);
 
-      return(this);
+      return((T)this);
     }
 
     /**
@@ -501,10 +528,53 @@ abstract public class AbstractCameraActivity extends Activity {
      *
      * @return the builder, for further configuration
      */
-    public IntentBuilder focusMode(FocusMode focusMode) {
+    public T focusMode(FocusMode focusMode) {
       result.putExtra(EXTRA_FOCUS_MODE, focusMode);
 
-      return(this);
+      return((T)this);
+    }
+
+    /**
+     * Sets the desired flash mode. This is a suggestion; if
+     * the device does not support this mode, the device default
+     * behavior will be used.
+     *
+     * @param mode the desired flash mode
+     * @return the builder, for further configuration
+     */
+    public T flashMode(FlashMode mode) {
+      return(flashModes(new FlashMode[]{mode}));
+    }
+
+    /**
+     * Sets the desired flash modes, in priority-first order
+     * (the first flash mode will be used if supported, otherwise
+     * the second flash mode will be used if supported, ...).
+     * These are a suggestion; if none of these modes are supported,
+     * the default device behavior will be used.
+     *
+     * @param modes the flash modes to try
+     * @return the builder, for further configuration
+     */
+    public T flashModes(FlashMode[] modes) {
+      return(flashModes(Arrays.asList(modes)));
+    }
+
+    /**
+     * Sets the desired flash modes, in priority-first order
+     * (the first flash mode will be used if supported, otherwise
+     * the second flash mode will be used if supported, ...).
+     * These are a suggestion; if none of these modes are supported,
+     * the default device behavior will be used.
+     *
+     * @param modes the flash modes to try
+     * @return the builder, for further configuration
+     */
+    public T flashModes(List<FlashMode> modes) {
+      result.putExtra(EXTRA_FLASH_MODES,
+        new ArrayList<FlashMode>(modes));
+
+      return((T)this);
     }
   }
 }

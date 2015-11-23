@@ -31,6 +31,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
 import com.commonsware.cwac.cam2.CameraActivity;
+import com.commonsware.cwac.cam2.FlashMode;
 import com.commonsware.cwac.security.RuntimePermissionUtils;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -66,6 +67,7 @@ public class MainActivity extends Activity {
   private File testRoot;
   private File testZip;
   private RuntimePermissionUtils utils;
+  private File previewFrame;
 
   @TargetApi(23)
   @Override
@@ -80,6 +82,9 @@ public class MainActivity extends Activity {
         .show();
       finish();
     }
+
+    previewFrame=
+      new File(getExternalCacheDir(), "cam2-preview.jpg");
 
     setContentView(R.layout.main);
 
@@ -161,6 +166,9 @@ public class MainActivity extends Activity {
                                   final Intent data) {
     switch(requestCode) {
       case REQUEST_PORTRAIT_RFC:
+        savePreviewFrame(new File(testRoot,
+          "preview-portrait-rear.jpg"));
+
         Runnable r=new Runnable() {
           @Override
           public void run() {
@@ -178,11 +186,17 @@ public class MainActivity extends Activity {
         break;
 
       case REQUEST_PORTRAIT_FFC:
+        savePreviewFrame(new File(testRoot,
+          "preview-portrait-front.jpg"));
+
         wizardBody.showNext();
         handlePage();
         break;
 
       case REQUEST_LANDSCAPE_RFC:
+        savePreviewFrame(new File(testRoot,
+          "preview-landscape-rear.jpg"));
+
         r=new Runnable() {
           @Override
           public void run() {
@@ -200,6 +214,9 @@ public class MainActivity extends Activity {
         break;
 
       case REQUEST_LANDSCAPE_FFC:
+        savePreviewFrame(new File(testRoot,
+          "preview-landscape-front.jpg"));
+
         wizardBody.showNext();
         handlePage();
         break;
@@ -238,6 +255,16 @@ public class MainActivity extends Activity {
     }
   }
 
+  private void savePreviewFrame(File previewDest) {
+    if (previewFrame.exists()) {
+      if (previewDest.exists()) {
+        previewDest.delete();
+      }
+
+      previewFrame.renameTo(previewDest);
+    }
+  }
+
   private void handlePortraitPage() {
     previous.setEnabled(false);
     next.setEnabled(true);
@@ -257,6 +284,8 @@ public class MainActivity extends Activity {
         .to(new File(testRoot, "portrait-rear.jpg"))
         .updateMediaStore()
         .debug()
+        .debugSavePreviewFrame()
+        .flashMode(FlashMode.ALWAYS)
         .build();
 
     startActivityForResult(i, REQUEST_PORTRAIT_RFC);
@@ -329,11 +358,13 @@ public class MainActivity extends Activity {
     next.setEnabled(false);
 
     Intent i=new CameraActivity.IntentBuilder(this)
-        .skipConfirm()
-        .facing(AbstractCameraActivity.Facing.BACK)
-        .facingExactMatch()
-        .to(new File(testRoot, "landscape-rear.jpg"))
+      .skipConfirm()
+      .facing(AbstractCameraActivity.Facing.BACK)
+      .facingExactMatch()
+      .to(new File(testRoot, "landscape-rear.jpg"))
         .updateMediaStore()
+      .flashMode(FlashMode.ALWAYS)
+      .debugSavePreviewFrame()
         .debug()
         .build();
 
@@ -346,7 +377,9 @@ public class MainActivity extends Activity {
       .facing(AbstractCameraActivity.Facing.FRONT)
       .facingExactMatch()
       .to(new File(testRoot, "portrait-front.jpg"))
+      .flashMode(FlashMode.ALWAYS)
       .debug()
+      .debugSavePreviewFrame()
       .updateMediaStore()
       .build();
 
@@ -360,6 +393,8 @@ public class MainActivity extends Activity {
       .facingExactMatch()
       .to(new File(testRoot, "landscape-front.jpg"))
       .updateMediaStore()
+      .flashMode(FlashMode.ALWAYS)
+      .debugSavePreviewFrame()
       .debug()
       .build();
 
@@ -406,6 +441,7 @@ public class MainActivity extends Activity {
                                    File zipFile) throws IOException {
     FileOutputStream fout = new FileOutputStream(zipFile);
     ZipOutputStream zout = new ZipOutputStream(fout);
+
     zipSubDirectory(ctxt, "", dir, zout);
     zout.flush();
     fout.getFD().sync();
@@ -434,11 +470,15 @@ public class MainActivity extends Activity {
           null);
 
         FileInputStream fin = new FileInputStream(file);
+
         zout.putNextEntry(new ZipEntry(basePath + file.getName()));
+
         int length;
+
         while ((length = fin.read(buffer)) > 0) {
           zout.write(buffer, 0, length);
         }
+
         zout.closeEntry();
         fin.close();
       }

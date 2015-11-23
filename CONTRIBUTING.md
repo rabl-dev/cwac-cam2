@@ -1,6 +1,6 @@
 # How To Contribute
 
-If you have an interest in contributing to this project, here is some advice for packaging your contribution. Thahks!
+If you have an interest in contributing to this project, here is some advice for packaging your contribution. Thanks!
 
 ## Contributing Bug Reports
 

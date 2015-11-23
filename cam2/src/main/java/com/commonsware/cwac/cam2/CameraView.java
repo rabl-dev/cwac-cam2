@@ -95,6 +95,42 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     this.previewSize=previewSize;
 
     enterTheMatrix();
+    requestLayout();
+  }
+
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+    int width=MeasureSpec.getSize(widthMeasureSpec);
+    int height=MeasureSpec.getSize(heightMeasureSpec);
+    boolean isFullBleed=true;
+
+    if (previewSize==null) {
+      setMeasuredDimension(width, height);
+    }
+    else {
+      if (isFullBleed) {
+        if (width>height*previewSize.getWidth()/previewSize.getHeight()) {
+          setMeasuredDimension(width,
+            width*previewSize.getHeight()/previewSize.getWidth());
+        }
+        else {
+          setMeasuredDimension(height*previewSize.getWidth()/previewSize.getHeight(),
+            height);
+        }
+      }
+      else {
+        if (width<height*previewSize.getWidth()/previewSize.getHeight()) {
+          setMeasuredDimension(width,
+            width*previewSize.getHeight()/previewSize.getWidth());
+        }
+        else {
+          setMeasuredDimension(height*previewSize.getWidth()/previewSize.getHeight(),
+            height);
+        }
+      }
+    }
   }
 
   public void setStateCallback(StateCallback cb) {
@@ -154,15 +190,6 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
     RectF rectView=new RectF(0, 0, viewWidth, viewHeight);
     float viewCenterX=rectView.centerX();
     float viewCenterY=rectView.centerY();
-    boolean isDefaultLandscape=isDeviceDefaultOrientationLandscape(
-      getContext());
-
-    if (isDefaultLandscape) {
-      int temp=previewWidth;
-      previewWidth=previewHeight;
-      previewHeight=temp;
-    }
-
     RectF rectPreview=new RectF(0, 0, previewHeight, previewWidth);
     float previewCenterX=rectPreview.centerX();
     float previewCenterY=rectPreview.centerY();
@@ -194,39 +221,4 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
 
     setTransform(txform);
   }
-
-  // based on http://stackoverflow.com/a/31806201/115145
-
-  public static boolean isDeviceDefaultOrientationLandscape(Context ctxt) {
-    WindowManager windowManager=(WindowManager)ctxt.getSystemService(Context.WINDOW_SERVICE);
-    Configuration config=ctxt.getResources().getConfiguration();
-    int rotation=windowManager.getDefaultDisplay().getRotation();
-
-    boolean defaultLandsacpeAndIsInLandscape = (rotation == Surface.ROTATION_0 ||
-        rotation == Surface.ROTATION_180) &&
-        config.orientation == Configuration.ORIENTATION_LANDSCAPE;
-
-    boolean defaultLandscapeAndIsInPortrait = (rotation == Surface.ROTATION_90 ||
-        rotation == Surface.ROTATION_270) &&
-        config.orientation == Configuration.ORIENTATION_PORTRAIT;
-
-    return(defaultLandsacpeAndIsInLandscape ||
-      defaultLandscapeAndIsInPortrait);
-  }
 }
-
-/*
-
-Notes about all of this TextureView matrix crap, to help me
-remember in the future.
-
-postTranslate() is setting the X/Y coordinates of the
-upper-left corner of the frames drawn within the TextureView.
-
-postRotate(), with one parameter, rotates how the frames are
-drawn within the TextureView around the upper-left corner
-of where the frames are drawn. Hence, most rotations should
-probably be using the three-parameter form, that specify
-the center around which to rotate.
-
- */

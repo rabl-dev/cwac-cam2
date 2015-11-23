@@ -87,7 +87,8 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
    * Call setComponent() on the Intent if you are using your
    * own subclass of VideoRecorderActivity.
    */
-  public static class IntentBuilder extends AbstractCameraActivity.IntentBuilder {
+  public static class IntentBuilder
+    extends AbstractCameraActivity.IntentBuilder<IntentBuilder> {
     /**
      * Standard constructor. May throw a runtime exception
      * if the environment is not set up properly (see
@@ -107,7 +108,7 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
     }
 
     @Override
-    public AbstractCameraActivity.IntentBuilder to(Uri output) {
+    public IntentBuilder to(Uri output) {
       if (!"file".equals(output.getScheme())) {
         throw new IllegalArgumentException("must be a file:/// Uri");
       }

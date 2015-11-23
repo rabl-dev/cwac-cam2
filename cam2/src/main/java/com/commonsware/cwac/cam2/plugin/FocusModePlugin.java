@@ -148,6 +148,33 @@ public class FocusModePlugin implements CameraPlugin {
     @Override
     public void addToPreviewRequest(CameraCharacteristics cc,
                                     CaptureRequest.Builder captureBuilder) {
+      int desiredMode=getDesiredFocusMode(cc);
+
+      if (desiredMode!=-1) {
+        captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+          desiredMode);
+      }
+      else {
+        Log.e("CWAC-Cam2", "no support for requested focus mode");
+      }
+    }
+
+    @Override
+    public void addToCaptureRequest(CameraCharacteristics cc,
+                                    boolean facingFront,
+                                    CaptureRequest.Builder captureBuilder) {
+      int desiredMode=getDesiredFocusMode(cc);
+
+      if (desiredMode!=-1) {
+        captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+          desiredMode);
+      }
+      else {
+        Log.e("CWAC-Cam2", "no support for requested focus mode");
+      }
+    }
+
+    private int getDesiredFocusMode(CameraCharacteristics cc) {
       int[] availModes=cc.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
       int desiredMode;
 
@@ -166,32 +193,23 @@ public class FocusModePlugin implements CameraPlugin {
 
       if ("Sony".equals(Build.MANUFACTURER) &&
         ("C6603".equals(Build.PRODUCT) ||
-         "D5803".equals(Build.PRODUCT) ||
-         "C6802".equals(Build.PRODUCT))) {
+          "D5803".equals(Build.PRODUCT) ||
+          "C6802".equals(Build.PRODUCT))) {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
       }
       else if ("htc".equals(Build.MANUFACTURER) &&
         ("volantis".equals(Build.PRODUCT) ||
-         "volantisg".equals(Build.PRODUCT))) {
+          "volantisg".equals(Build.PRODUCT))) {
         desiredMode=CameraMetadata.CONTROL_AF_MODE_OFF;
       }
 
-      boolean itsAllGood=false;
-
       for (int availMode : availModes) {
         if (availMode==desiredMode) {
-          itsAllGood=true;
-          break;
+          return(desiredMode);
         }
       }
 
-      if (itsAllGood) {
-        captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-          desiredMode);
-      }
-      else {
-        Log.e("CWAC-Cam2", "no support for requested focus mode");
-      }
+      return(-1);
     }
   }
 }

@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
 import com.commonsware.cwac.cam2.CameraActivity;
+import com.commonsware.cwac.cam2.FlashMode;
 import java.io.File;
 
 public class PictureFragment extends PreferenceFragment {
@@ -125,6 +126,24 @@ public class PictureFragment extends PreferenceFragment {
 
     if (prefs.getBoolean("debugSavePreview", false)) {
       b.debugSavePreviewFrame();
+    }
+
+    int rawFlashMode=Integer.valueOf(
+      prefs.getString("flashMode", "-1"));
+
+    switch (rawFlashMode) {
+      case 0:
+        b.flashMode(FlashMode.OFF);
+        break;
+      case 1:
+        b.flashMode(FlashMode.ALWAYS);
+        break;
+      case 2:
+        b.flashMode(FlashMode.AUTO);
+        break;
+      case 3:
+        b.flashMode(FlashMode.REDEYE);
+        break;
     }
 
     ((Contract)getActivity()).takePicture(b.build());

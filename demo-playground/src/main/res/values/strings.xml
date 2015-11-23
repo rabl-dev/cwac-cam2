@@ -21,5 +21,6 @@
 	<string name="menu_switch_video">Switch to Video</string>
 	<string name="menu_switch_picture">Switch to Picture</string>
 	<string name="title_save_preview">Save preview frame</string>
+	<string name="title_flash_mode">Flash Mode</string>
 
 </resources>

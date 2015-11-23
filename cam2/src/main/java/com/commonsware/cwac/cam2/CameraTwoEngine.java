@@ -16,6 +16,7 @@ package com.commonsware.cwac.cam2;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -37,6 +38,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
+import android.view.WindowManager;
 import com.commonsware.cwac.cam2.util.Size;
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -57,6 +59,7 @@ import de.greenrobot.event.EventBus;
 @SuppressWarnings("ResourceType")
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class CameraTwoEngine extends CameraEngine {
+  private final Context ctxt;
   private CameraManager mgr;
   final private HandlerThread handlerThread=new HandlerThread(getClass().getSimpleName(),
       android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -72,8 +75,8 @@ public class CameraTwoEngine extends CameraEngine {
    * @param ctxt any Context will do
    */
   public CameraTwoEngine(Context ctxt) {
-    mgr=(CameraManager)ctxt.
-        getApplicationContext().
+    this.ctxt=ctxt.getApplicationContext();
+    mgr=(CameraManager)this.ctxt.
         getSystemService(Context.CAMERA_SERVICE);
     handlerThread.start();
     handler=new Handler(handlerThread.getLooper());
@@ -104,7 +107,6 @@ public class CameraTwoEngine extends CameraEngine {
               CameraCharacteristics cc=
                 mgr.getCameraCharacteristics(cameraId);
               Descriptor camera=new Descriptor(cameraId, cc);
-
               StreamConfigurationMap map=cc.get(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
               android.util.Size[] rawSizes=
@@ -329,7 +331,7 @@ public class CameraTwoEngine extends CameraEngine {
     public void onError(CameraDevice cameraDevice, int i) {
       lock.release();
       cameraDevice.close();
-      // TODO: raise event
+      EventBus.getDefault().post(new CameraTwoPreviewErrorEvent(i));
     }
 
     @Override
@@ -389,7 +391,7 @@ public class CameraTwoEngine extends CameraEngine {
 
     @Override
     public void onConfigureFailed(CameraCaptureSession session) {
-      // TODO: raise event
+      EventBus.getDefault().post(new CameraTwoPreviewFailureEvent());
     }
   }
 
@@ -411,7 +413,7 @@ public class CameraTwoEngine extends CameraEngine {
 
     @Override
     public void onCaptureFailed(CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {
-      // TODO: raise event
+      getBus().post(new PictureTakenEvent(new RuntimeException("generic camera2 capture failure")));
     }
 
     @Override
@@ -506,7 +508,8 @@ public class CameraTwoEngine extends CameraEngine {
     }
   }
 
-  private class CapturePictureTransaction extends CameraCaptureSession.CaptureCallback {
+  private class CapturePictureTransaction
+    extends CameraCaptureSession.CaptureCallback {
     private final Session s;
 
     CapturePictureTransaction(CameraSession session) {
@@ -514,21 +517,28 @@ public class CameraTwoEngine extends CameraEngine {
     }
 
     @Override
-    public void onCaptureStarted(CameraCaptureSession session, CaptureRequest request, long timestamp, long frameNumber) {
+    public void onCaptureStarted(CameraCaptureSession session,
+                                 CaptureRequest request,
+                                 long timestamp, long frameNumber) {
       super.onCaptureStarted(session, request, timestamp, frameNumber);
 
       shutter.play(MediaActionSound.SHUTTER_CLICK);
     }
 
     @Override
-    public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+    public void onCaptureCompleted(CameraCaptureSession session,
+                                   CaptureRequest request,
+                                   TotalCaptureResult result) {
       // TODO: something useful with the picture
       unlockFocus();
     }
 
     @Override
-    public void onCaptureFailed(CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {
-      // TODO: raise event
+    public void onCaptureFailed(CameraCaptureSession session,
+                                CaptureRequest request,
+                                CaptureFailure failure) {
+      getBus()
+        .post(new PictureTakenEvent(new RuntimeException("generic camera2 capture failure")));
     }
 
     private void unlockFocus() {

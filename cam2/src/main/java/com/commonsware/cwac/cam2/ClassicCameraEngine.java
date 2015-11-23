@@ -15,6 +15,7 @@
 package com.commonsware.cwac.cam2;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -24,6 +25,8 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Surface;
+import android.view.WindowManager;
 import com.commonsware.cwac.cam2.util.Size;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,11 +44,16 @@ import java.util.List;
 public class ClassicCameraEngine extends CameraEngine
     implements MediaRecorder.OnInfoListener,
     Camera.PreviewCallback {
+  private final Context ctxt;
   private List<Descriptor> descriptors=null;
   private MediaRecorder recorder;
   private VideoTransaction xact;
   private int previewWidth, previewHeight;
   private int previewFormat;
+
+  public ClassicCameraEngine(Context ctxt) {
+    this.ctxt=ctxt.getApplicationContext();
+  }
 
   /**
    * {@inheritDoc}
@@ -279,6 +287,27 @@ public class ClassicCameraEngine extends CameraEngine
     getBus().post(new VideoTakenEvent(xact));
     xact=null;
   }
+
+/*
+  @Override
+  public boolean shouldSwapPreviewDimensions(CameraSession session) {
+    WindowManager windowManager=
+      (WindowManager)ctxt.getSystemService(Context.WINDOW_SERVICE);
+    Configuration config=ctxt.getResources().getConfiguration();
+    int rotation=windowManager.getDefaultDisplay().getRotation();
+
+    boolean defaultLandscapeAndIsInLandscape = (rotation == Surface.ROTATION_0 ||
+      rotation == Surface.ROTATION_180) &&
+      config.orientation == Configuration.ORIENTATION_LANDSCAPE;
+
+    boolean defaultLandscapeAndIsInPortrait = (rotation == Surface.ROTATION_90 ||
+      rotation == Surface.ROTATION_270) &&
+      config.orientation == Configuration.ORIENTATION_PORTRAIT;
+
+    return(defaultLandscapeAndIsInLandscape ||
+      defaultLandscapeAndIsInPortrait);
+  }
+*/
 
   @Override
   public void handleOrientationChange(CameraSession session,

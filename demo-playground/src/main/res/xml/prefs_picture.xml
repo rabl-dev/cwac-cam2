@@ -35,5 +35,10 @@
     android:entries="@array/focusModes"
     android:entryValues="@array/focusModeValues"
     android:title="@string/title_focus_mode" />
+  <ListPreference
+    android:key="flashMode"
+    android:entries="@array/flashModes"
+    android:entryValues="@array/flashModeValues"
+    android:title="@string/title_flash_mode" />
 
 </PreferenceScreen>
