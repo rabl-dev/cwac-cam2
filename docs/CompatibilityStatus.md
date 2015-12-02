@@ -1,5 +1,31 @@
 # Compatibility Status
 
+## Version 0.4.x
+
+| Device                         | Identifier                  | Version | Issues |
+| ------------------------------ |:---------------------------:|:-------:|--------|
+| Amazon Kindle Fire HD 6        | `Amazon`/`full_ariel`       | 4.4.3   | |
+| Amazon Fire (7")               | `Amazon`/`full_ford`        | 5.1     | |
+| Amazon Fire HD 10              | `Amazon`/`full_thebes`      | 5.1     | |
+| Amazon Fire Phone              | `Amazon`/`juniper`          | 4.4.4   | |
+| Google Galaxy Nexus            | `samsung`/`yakju`           | 4.3     | |
+| Google Nexus 4                 | `LGE`/`occam`               | 5.1.1   | |
+| Google Nexus 5                 | `LGE`/`hammerhead`          | 6.0     | |
+| Google Nexus 5X                | `LGE`/`bullhead`            | 6.0     | |
+| Google Nexus 6                 | `motorola`/`shamu`          | 6.0     | |
+| Google Nexus 6P                | `Huawei`/`angler`           | 6.0     | [121](https://github.com/commonsguy/cwac-cam2/issues/121) |
+| Google Nexus 7 (2012)          | `asus`/`nakasi`             | 5.1.1   | |
+| Google Nexus 7 (2013)          | `asus`/`razor`              | 6.0     | |
+| Google Nexus 9                 | `htc`/`volantis`            | 6.0     | |
+| Google Nexus S                 | `samsung`/`soju`            | 4.1.2   | |
+| HTC One A9                     | `HTC`/`hiaeuhl_00709`       | 6.0   | |
+| HTC One M7 GPE                 | `HTC`/`m7_google`           | 5.1     | |
+| Samsung Galaxy Note 3 SM-N900  | `samsung`/`ha3gub`          | 5.0   | |
+| Samsung Galaxy S5              | `samsung`/`k3gxx`           | 5.0   | |
+| SONY Xperia Z (C6603)          | `Sony`/`C6603`              | 5.1.1 | |
+| SONY Xperia Z Ultra (C6802)    | `Sony`/`C6802`              | 5.1.1 | [116](https://github.com/commonsguy/cwac-cam2/issues/116) |
+| Wileyfox Swift                 | `Wileyfox`/`Swift`          | 5.1.1 (CM 12.1) | |
+
 ## Version 0.3.x
 
 | Device                         | Identifier                  | Version | Issues |

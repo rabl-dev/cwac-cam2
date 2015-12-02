@@ -97,7 +97,10 @@ public class FlashModePlugin implements CameraPlugin {
             desiredMode=Camera.Parameters.FLASH_MODE_RED_EYE;
           }
 
-          if (params.getSupportedFlashModes().contains(desiredMode)) {
+          List<String> supportedModes=params.getSupportedFlashModes();
+
+          if (supportedModes!=null &&
+            supportedModes.contains(desiredMode)) {
             params.setFlashMode(desiredMode);
             matched=true;
             break;

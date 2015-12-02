@@ -30,7 +30,8 @@ and what their behavior is:
 | `updateMediaStore()`       | `EXTRA_UPDATE_MEDIA_STORE`       | `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
 | `mirrorPreview()`          | `EXTRA_MIRROR_PREVIEW`           | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
 | `focusMode()`              | `EXTRA_FOCUS_MODE`               | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
-| `debugSavePreviewFrame() ` | `EXTRA_DEBUG_SAVE_PREVIEW_FRAME` | `boolean`                                 | Indicate if a preview frame should be saved when a picture is taken (default is `false`) |
+| `debugSavePreviewFrame()`  | `EXTRA_DEBUG_SAVE_PREVIEW_FRAME` | `boolean`                                 | Indicate if a preview frame should be saved when a picture is taken (default is `false`) |
+| `flashModes()`             | `EXTRA_FLASH_MODES`              | `List<FlashMode>`                         | Request a particular flash mode `FlashMode.OFF`, `FlashMode.ALWAYS`, `FlashMode.AUTO`, `FlashMode.REDYE` (default is device default) |
 
 Note that if you are going to use `skipConfirm()`, you need to call
 that first on the `IntentBuilder` before any of the others.
@@ -44,6 +45,17 @@ However, when the device is part-way through the rotation, before
 the configuration change kicks in, the mirroring effect starts
 becoming more of a vertical flip rather than a horizontal one.
 In short: the image will look upside-down briefly.
+
+For flash support, you have:
+
+- `flashMode()`, which takes a single flash mode
+- `flashModes()`, which takes either `FlashMode[]` or `List<FlashMode>`
+
+If you supply more than one flash mode (via `flashModes()`), they
+will be tried in the order you supply. So, the first mode will be
+used if it is supported, otherwise the second mode will be used, etc.
+If no mode you request is supported, whatever the default device
+behavior is will be performed, which is usually no flash.
 
 ## Example Use of `IntentBuilder`
 
