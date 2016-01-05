@@ -17,8 +17,10 @@ package com.commonsware.cwac.cam2.playground;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,6 +32,7 @@ import java.io.File;
 public class PictureFragment extends PreferenceFragment {
   interface Contract {
     void takePicture(Intent i);
+    void setOutput(Uri uri);
   }
 
   @Override
@@ -102,7 +105,11 @@ public class PictureFragment extends PreferenceFragment {
     }
 
     if (prefs.getBoolean("file", false)) {
-      b.to(new File(getActivity().getExternalFilesDir(null), "test.jpg"));
+      File f=new File(getActivity().getExternalFilesDir(null),
+        "test.jpg");
+
+      b.to(f);
+      ((Contract)getActivity()).setOutput(Uri.fromFile(f));
     }
 
     if (prefs.getBoolean("mirrorPreview", false)) {
@@ -146,6 +153,15 @@ public class PictureFragment extends PreferenceFragment {
         break;
     }
 
-    ((Contract)getActivity()).takePicture(b.build());
+    Intent result;
+
+    if (prefs.getBoolean("useChooser", false)) {
+      result=b.buildChooser("Choose a picture-taking thingy");
+    }
+    else {
+      result=b.build();
+    }
+
+    ((Contract)getActivity()).takePicture(result);
   }
 }

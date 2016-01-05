@@ -17,6 +17,7 @@ package com.commonsware.cwac.cam2.playground;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import java.io.File;
 public class VideoFragment extends PreferenceFragment {
   interface Contract {
     void takeVideo(Intent i);
+    void setOutput(Uri uri);
   }
 
   @Override
@@ -72,8 +74,10 @@ public class VideoFragment extends PreferenceFragment {
   private void takePicture() {
     SharedPreferences prefs=getPreferenceManager().getSharedPreferences();
     VideoRecorderActivity.IntentBuilder b=new VideoRecorderActivity.IntentBuilder(getActivity());
+    File f=new File(getActivity().getExternalFilesDir(null), "test.mp4");
 
-    b.to(new File(getActivity().getExternalFilesDir(null), "test.mp4"));
+    b.to(f);
+    ((Contract)getActivity()).setOutput(Uri.fromFile(f));
 
     if (prefs.getBoolean("highQuality", false)) {
       b.quality(VideoRecorderActivity.Quality.HIGH);
@@ -136,6 +140,15 @@ public class VideoFragment extends PreferenceFragment {
         break;
     }
 
-    ((Contract)getActivity()).takeVideo(b.build());
+    Intent result;
+
+    if (prefs.getBoolean("useChooser", false)) {
+      result=b.buildChooser("Choose a picture-taking thingy");
+    }
+    else {
+      result=b.build();
+    }
+
+    ((Contract)getActivity()).takeVideo(result);
   }
 }

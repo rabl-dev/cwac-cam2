@@ -14,7 +14,6 @@
 
 package com.commonsware.cwac.cam2;
 
-import android.content.pm.PackageInstaller;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -26,7 +25,6 @@ import com.commonsware.cwac.cam2.plugin.OrientationPlugin;
 import com.commonsware.cwac.cam2.plugin.SizeAndFormatPlugin;
 import com.commonsware.cwac.cam2.util.Size;
 import com.commonsware.cwac.cam2.util.Utils;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
@@ -249,21 +247,6 @@ public class CameraController implements CameraView.StateCallback {
       if (camera != null && cv.getWidth() > 0 && cv.getHeight() > 0) {
         previewSize=Utils.chooseOptimalSize(camera.getPreviewSizes(),
             cv.getWidth(), cv.getHeight(), largest);
-
-        boolean shouldSwapPreviewDimensions=
-          cv
-            .getContext()
-            .getResources()
-            .getConfiguration().orientation==
-            Configuration.ORIENTATION_PORTRAIT;
-        Size virtualPreviewSize=previewSize;
-
-        if (shouldSwapPreviewDimensions) {
-          virtualPreviewSize=new Size(previewSize.getHeight(),
-          previewSize.getWidth());
-        }
-
-        cv.setPreviewSize(virtualPreviewSize);
       }
 
       SurfaceTexture texture=cv.getSurfaceTexture();
@@ -284,6 +267,7 @@ public class CameraController implements CameraView.StateCallback {
               new FlashModePlugin(flashModes))
             .build();
 
+        session.setPreviewSize(previewSize);
         engine.open(session, texture);
       }
     }
@@ -298,6 +282,28 @@ public class CameraController implements CameraView.StateCallback {
     else {
       EventBus.getDefault().post(new NoSuchCameraEvent());
     }
+  }
+
+  @SuppressWarnings("unused")
+  public void onEventMainThread(CameraEngine.OpenedEvent event) {
+    CameraDescriptor camera=cameras.get(currentCamera);
+    CameraView cv=getPreview(camera);
+
+    boolean shouldSwapPreviewDimensions=
+      cv
+        .getContext()
+        .getResources()
+        .getConfiguration().orientation==
+        Configuration.ORIENTATION_PORTRAIT;
+    Size virtualPreviewSize=session.getPreviewSize();
+
+    if (shouldSwapPreviewDimensions) {
+      virtualPreviewSize=
+        new Size(session.getPreviewSize().getHeight(),
+          session.getPreviewSize().getWidth());
+    }
+
+    cv.setPreviewSize(virtualPreviewSize);
   }
 
   @SuppressWarnings("unused")

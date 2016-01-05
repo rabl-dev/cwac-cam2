@@ -390,7 +390,9 @@ abstract public class AbstractCameraActivity extends Activity {
     CONTINUOUS, OFF, EDOF
   }
 
-  public static class IntentBuilder<T extends IntentBuilder> {
+  abstract public static class IntentBuilder<T extends IntentBuilder> {
+    abstract Intent buildChooserBaseIntent();
+
     protected final Intent result;
 
     /**
@@ -408,10 +410,36 @@ abstract public class AbstractCameraActivity extends Activity {
     /**
      * Returns the Intent defined by the builder.
      *
-     * @return the Intent to use to start the CameraActivity
+     * @return the Intent to use to start the activity
      */
     public Intent build() {
       return(result);
+    }
+
+    /**
+     * Returns an ACTION_CHOOSER Intent, to offer a choice
+     * between this library's activity and existing camera
+     * apps.
+     *
+     * @param title title for chooser dialog, or null
+     * @return the Intent to use to start the activity
+     */
+    public Intent buildChooser(CharSequence title) {
+      Intent original=build();
+
+      Intent toChooseFrom=buildChooserBaseIntent();
+
+      if (original.hasExtra(MediaStore.EXTRA_OUTPUT)) {
+        toChooseFrom.putExtra(MediaStore.EXTRA_OUTPUT,
+          original.getParcelableExtra(MediaStore.EXTRA_OUTPUT));
+      }
+
+      Intent chooser=Intent.createChooser(toChooseFrom, title);
+
+      chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
+        new Intent[] {original});
+
+      return(chooser);
     }
 
     /**

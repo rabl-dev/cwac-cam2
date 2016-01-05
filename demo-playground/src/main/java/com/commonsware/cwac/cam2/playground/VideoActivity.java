@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Toast;
@@ -26,11 +27,18 @@ public class VideoActivity extends Activity
     implements VideoFragment.Contract {
   private static final int REQUEST_VIDEO=1337;
   private static final String TAG_PLAYGROUND=VideoFragment.class.getCanonicalName();
+  private static final String STATE_OUTPUT=
+    "com.commonsware.cwac.cam2.playground.VideoActivity.STATE_OUTPUT";
   private VideoFragment playground=null;
+  private Uri output=null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    if (savedInstanceState!=null) {
+      output=savedInstanceState.getParcelable(STATE_OUTPUT);
+    }
 
     if (!Environment.MEDIA_MOUNTED
       .equals(Environment.getExternalStorageState())) {
@@ -53,6 +61,13 @@ public class VideoActivity extends Activity
   }
 
   @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    outState.putParcelable(STATE_OUTPUT, output);
+  }
+
+  @Override
   public void takeVideo(Intent i) {
     startActivityForResult(i, REQUEST_VIDEO);
   }
@@ -62,7 +77,7 @@ public class VideoActivity extends Activity
                                Intent data) {
     if (requestCode==REQUEST_VIDEO) {
       if (resultCode == Activity.RESULT_OK) {
-        Intent i=new Intent(Intent.ACTION_VIEW, data.getData());
+        Intent i=new Intent(Intent.ACTION_VIEW, output);
 
         try {
           startActivity(i);
@@ -73,5 +88,10 @@ public class VideoActivity extends Activity
         }
       }
     }
+  }
+
+  @Override
+  public void setOutput(Uri uri) {
+    output=uri;
   }
 }

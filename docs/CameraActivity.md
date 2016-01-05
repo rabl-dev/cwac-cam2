@@ -71,6 +71,17 @@ behavior is will be performed, which is usually no flash.
   startActivityForResult(i, REQUEST_PORTRAIT_FFC);
 ```
 
+## `buildChooser()`
+
+In addition to `build()`, `IntentBuilder` supports `buildChooser()`.
+This will return an `Intent` that will bring up an activity chooser,
+where the user can choose between this library's camera activity
+or existing `ACTION_IMAGE_CAPTURE` implementations. This way, the
+user gets the choice of what should be used to take the picture.
+
+`buildChooser()` takes a `CharSequence` parameter, for a title
+to go over the chooser dialog. `null` means do not use a title.
+
 ## Output
 
 If you provide the destination `Uri` via `to()`, the image will be written there, and the `Uri` of the `Intent`

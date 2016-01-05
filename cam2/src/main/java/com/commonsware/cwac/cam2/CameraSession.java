@@ -15,6 +15,7 @@
 package com.commonsware.cwac.cam2;
 
 import android.content.Context;
+import com.commonsware.cwac.cam2.util.Size;
 import java.util.ArrayList;
 
 /**
@@ -34,6 +35,7 @@ public class CameraSession {
   private final CameraDescriptor descriptor;
   private Context ctxt;
   private final ArrayList<CameraPlugin> plugins=new ArrayList<CameraPlugin>();
+  private Size previewSize;
 
   /**
    * Constructor.
@@ -72,6 +74,14 @@ public class CameraSession {
     for (CameraPlugin plugin : getPlugins()) {
       plugin.destroy();
     }
+  }
+
+  public Size getPreviewSize() {
+    return(previewSize);
+  }
+
+  public void setPreviewSize(Size previewSize) {
+    this.previewSize=previewSize;
   }
 
   /**

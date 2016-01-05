@@ -17,8 +17,10 @@ package com.commonsware.cwac.cam2.playground;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.widget.Toast;
 
 public class PictureActivity extends Activity
@@ -26,12 +28,19 @@ public class PictureActivity extends Activity
   private static final int REQUEST_CAMERA=1337;
   private static final String TAG_PLAYGROUND=PictureFragment.class.getCanonicalName();
   private static final String TAG_RESULT=ResultFragment.class.getCanonicalName();
+  private static final String STATE_OUTPUT=
+    "com.commonsware.cwac.cam2.playground.PictureActivity.STATE_OUTPUT";
   private PictureFragment playground=null;
   private ResultFragment result=null;
+  private Uri output=null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    if (savedInstanceState!=null) {
+      output=savedInstanceState.getParcelable(STATE_OUTPUT);
+    }
 
     if (!Environment.MEDIA_MOUNTED
       .equals(Environment.getExternalStorageState())) {
@@ -72,6 +81,13 @@ public class PictureActivity extends Activity
   }
 
   @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+
+    outState.putParcelable(STATE_OUTPUT, output);
+  }
+
+  @Override
   public void takePicture(Intent i) {
     startActivityForResult(i, REQUEST_CAMERA);
   }
@@ -83,7 +99,7 @@ public class PictureActivity extends Activity
         Bitmap bitmap=data.getParcelableExtra("data");
 
         if (bitmap == null) {
-          result.setImage(data.getData());
+          result.setImage(output);
         }
         else {
           result.setImage(bitmap);
@@ -97,5 +113,10 @@ public class PictureActivity extends Activity
             .commit();
       }
     }
+  }
+
+  @Override
+  public void setOutput(Uri uri) {
+    output=uri;
   }
 }

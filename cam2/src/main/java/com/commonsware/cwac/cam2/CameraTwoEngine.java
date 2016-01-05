@@ -114,8 +114,10 @@ public class CameraTwoEngine extends CameraEngine {
               ArrayList<Size> sizes=new ArrayList<Size>();
 
               for (android.util.Size size : rawSizes) {
-                sizes.add(
-                  new Size(size.getWidth(), size.getHeight()));
+                if (size.getWidth()<2160 && size.getHeight()<2160) {
+                  sizes.add(
+                    new Size(size.getWidth(), size.getHeight()));
+                }
               }
 
               camera.setPreviewSizes(sizes);
@@ -365,7 +367,6 @@ public class CameraTwoEngine extends CameraEngine {
               CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
           s.previewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
               CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-          // TODO: offer other flash support
 
           Descriptor camera=(Descriptor)s.getDescriptor();
           CameraCharacteristics cc=mgr.getCameraCharacteristics(camera.cameraId);

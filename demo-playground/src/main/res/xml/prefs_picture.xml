@@ -40,5 +40,8 @@
     android:entries="@array/flashModes"
     android:entryValues="@array/flashModeValues"
     android:title="@string/title_flash_mode" />
+  <SwitchPreference
+    android:key="useChooser"
+    android:title="@string/title_use_chooser"/>
 
 </PreferenceScreen>

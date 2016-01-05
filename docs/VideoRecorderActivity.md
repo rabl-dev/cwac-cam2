@@ -69,6 +69,17 @@ In short: the image will look upside-down briefly.
   startActivityForResult(i, MAKIN_MOVIES);
 ```
 
+## `buildChooser()`
+
+In addition to `build()`, `IntentBuilder` supports `buildChooser()`.
+This will return an `Intent` that will bring up an activity chooser,
+where the user can choose between this library's video-recording activity
+or existing `ACTION_VIDEO_CAPTURE` implementations. This way, the
+user gets the choice of what should be used to record the video.
+
+`buildChooser()` takes a `CharSequence` parameter, for a title
+to go over the chooser dialog. `null` means do not use a title.
+
 ## Output
 
 The video will be written to the `File` that you supply to `to()`,

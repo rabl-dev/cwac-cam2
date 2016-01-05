@@ -113,17 +113,42 @@ public class OrientationPlugin implements CameraPlugin {
       Camera.CameraInfo info,
       Camera camera, Camera.Parameters params) {
       int displayOrientation=getDisplayOrientation(info, true);
+      int cameraDisplayOrientation=90;
 
       if ("samsung".equals(Build.MANUFACTURER) &&
         "sf2wifixx".equals(Build.PRODUCT)) {
-        camera.setDisplayOrientation(0);
+        cameraDisplayOrientation=0;
+      }
+      else if (useAltAlgorithm()) {
+        int degrees=0;
+        int temp=displayOrientation;
+
+        switch (temp) {
+          case Surface.ROTATION_0: degrees = 0; break;
+          case Surface.ROTATION_90: degrees = 90; break;
+          case Surface.ROTATION_180: degrees = 180; break;
+          case Surface.ROTATION_270: degrees = 270; break;
+        }
+
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+          temp = (info.orientation + degrees) % 360;
+          temp = (360 - temp) % 360;  // compensate the mirror
+        } else {  // back-facing
+          temp = (info.orientation - degrees + 360) % 360;
+        }
+
+        cameraDisplayOrientation=temp;
       }
       else if (displayOrientation==180) {
-        camera.setDisplayOrientation(270);
+        cameraDisplayOrientation=270;
       }
+/*
       else {
         camera.setDisplayOrientation(90);
       }
+*/
+
+      camera.setDisplayOrientation(cameraDisplayOrientation);
 
       if (params!=null) {
         int outputOrientation;
@@ -139,6 +164,25 @@ public class OrientationPlugin implements CameraPlugin {
       }
 
       return(params);
+    }
+
+    private boolean useAltAlgorithm() {
+      if ("Huawei".equals(Build.MANUFACTURER) &&
+        "angler".equals(Build.PRODUCT)) {
+        return(true);
+      }
+
+      if ("LGE".equals(Build.MANUFACTURER) &&
+        "bullhead".equals(Build.PRODUCT)) {
+        return(true);
+      }
+
+      if ("samsung".equals(Build.MANUFACTURER) &&
+        "mprojectlteuc".equals(Build.PRODUCT)) {
+        return(true);
+      }
+
+      return(false);
     }
 
     @Override

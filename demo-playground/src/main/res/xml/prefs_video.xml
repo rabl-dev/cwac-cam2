@@ -37,5 +37,8 @@
     android:entries="@array/focusModes"
     android:entryValues="@array/focusModeValues"
     android:title="@string/title_focus_mode" />
+  <SwitchPreference
+    android:key="useChooser"
+    android:title="@string/title_use_chooser"/>
 
 </PreferenceScreen>

@@ -84,7 +84,9 @@ public class ClassicCameraEngine extends CameraEngine
             ArrayList<Size> sizes=new ArrayList<Size>();
 
             for (Camera.Size size : params.getSupportedPreviewSizes()) {
-              sizes.add(new Size(size.width, size.height));
+              if (size.height<2160 && size.width<2160) {
+                sizes.add(new Size(size.width, size.height));
+              }
             }
 
             descriptor.setPreviewSizes(sizes);
@@ -312,7 +314,9 @@ public class ClassicCameraEngine extends CameraEngine
   @Override
   public void handleOrientationChange(CameraSession session,
                                       OrientationChangedEvent event) {
-    ((Session)session).configureStillCamera(true);
+    if (session!=null) {
+      ((Session)session).configureStillCamera(true);
+    }
   }
 
   @Override
