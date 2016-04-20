@@ -23,29 +23,6 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/btn_camera_ok"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/cwac_selector_camera_button"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tv_camera_ok"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:drawableTop="@drawable/ic_camera_ok"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:singleLine="true"
-                android:text="@string/camera_ok"
-                android:textAllCaps="true"
-                android:textColor="#CECECE"
-                android:textSize="14sp"/>
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/btn_camera_problem"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -63,6 +40,29 @@
                 android:fontFamily="sans-serif-medium"
                 android:singleLine="true"
                 android:text="@string/camera_problem"
+                android:textAllCaps="true"
+                android:textColor="#CECECE"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_camera_ok"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/cwac_selector_camera_button"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_camera_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawableTop="@drawable/ic_camera_ok"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:singleLine="true"
+                android:text="@string/camera_ok"
                 android:textAllCaps="true"
                 android:textColor="#CECECE"
                 android:textSize="14sp"/>
