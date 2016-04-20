@@ -335,6 +335,8 @@ public class CustomCameraFragment extends Fragment {
     @SuppressWarnings("unused")
     public void onEventMainThread(CameraEngine.OpenedEvent event) {
         if (event.exception == null) {
+            okButton.setEnabled(true);
+            problemButton.setEnabled(true);
             progress.setVisibility(View.GONE);
             zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
 
@@ -405,11 +407,7 @@ public class CustomCameraFragment extends Fragment {
     }
 
     protected void performCameraAction() {
-        if (isVideo()) {
-            recordVideo();
-        } else {
-            takePicture();
-        }
+        takePicture();
     }
 
     private void takePicture() {
@@ -450,10 +448,6 @@ public class CustomCameraFragment extends Fragment {
                 // TODO: um, do something here
             }
         }
-    }
-
-    private boolean isVideo() {
-        return (getArguments().getBoolean(ARG_IS_VIDEO, false));
     }
 
     private void prepController() {
