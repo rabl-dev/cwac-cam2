@@ -28,6 +28,9 @@
     android:key="forceClassic"
     android:title="@string/title_force_classic"/>
   <SwitchPreference
+    android:key="highQuality"
+    android:title="@string/title_quality"/>
+  <SwitchPreference
     android:key="mirrorPreview"
     android:title="@string/title_mirror_preview"/>
   <ListPreference
@@ -40,6 +43,21 @@
     android:entries="@array/flashModes"
     android:entryValues="@array/flashModeValues"
     android:title="@string/title_flash_mode" />
+  <ListPreference
+    android:key="zoomStyle"
+    android:title="@string/title_zoom_style"
+    android:entries="@array/zoomStyles"
+    android:entryValues="@array/zoomStyleValues"/>
+  <ListPreference
+    android:key="confirmationQuality"
+    android:title="@string/title_confirmation_quality"
+    android:entries="@array/confirmationQuality"
+    android:entryValues="@array/confirmationQuality"/>
+<!--
+  <SwitchPreference
+    android:key="allowSwitchFlashMode"
+    android:title="@string/title_allow_switch_flash_mode"/>
+-->
   <SwitchPreference
     android:key="useChooser"
     android:title="@string/title_use_chooser"/>

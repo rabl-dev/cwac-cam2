@@ -19,7 +19,9 @@ import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.Log;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -34,12 +36,16 @@ abstract public class CameraEngine {
   private static final int CORE_POOL_SIZE=1;
   private static final int MAX_POOL_SIZE=Runtime.getRuntime().availableProcessors();
   private static final int KEEP_ALIVE_SECONDS=60;
-  private static volatile CameraEngine singleton=null;
+  private static volatile CameraEngine singletonClassic=null;
+  private static volatile CameraEngine singletonTwo=null;
   private EventBus bus=EventBus.getDefault();
   private boolean isDebug=false;
   private LinkedBlockingQueue<Runnable> queue=new LinkedBlockingQueue<Runnable>();
   private ThreadPoolExecutor pool;
   private File savePreviewFile=null;
+  protected List<FlashMode> preferredFlashModes;
+  protected ArrayList<FlashMode> eligibleFlashModes=
+    new ArrayList<FlashMode>();
 
   private static class CrashableEvent {
     /**
@@ -123,6 +129,10 @@ abstract public class CameraEngine {
   }
 
   public static class OrientationChangedEvent {
+
+  }
+
+  public static class SmoothZoomCompletedEvent {
 
   }
 
@@ -275,10 +285,33 @@ abstract public class CameraEngine {
   abstract public void recordVideo(CameraSession session,
       VideoTransaction xact) throws Exception;
 
-  abstract public void stopVideoRecording(CameraSession session) throws Exception;
+  abstract public void stopVideoRecording(CameraSession session,
+                                          boolean abandon) throws Exception;
 
   abstract public void handleOrientationChange(CameraSession session,
                                                OrientationChangedEvent event);
+
+  /**
+   * @return true if the engine supports changing flash modes
+   * on the fly, false otherwise
+   */
+  abstract public boolean supportsDynamicFlashModes();
+
+  /**
+   * @return true if this camera supports zoom, false otherwise
+   */
+  abstract public boolean supportsZoom(CameraSession session);
+
+  /**
+   * Sets the zoom level for the camera.
+   *
+   * @param session the session for the camera of interest
+   * @param zoomLevel 0-100, 100=max zoom
+   * @return true if "smooth zoom" (and should not request
+   * zoom until complete), false otherwise
+   */
+  abstract public boolean zoomTo(CameraSession session,
+                                   int zoomLevel);
 
   /**
    * Builds a CameraEngine instance based on the device's
@@ -290,18 +323,26 @@ abstract public class CameraEngine {
    */
   synchronized public static CameraEngine buildInstance(Context ctxt,
                                                         boolean forceClassic) {
-    if (singleton==null) {
-      if (!forceClassic &&
-          Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP
-        && !isProblematicDeviceOnNewCameraApi()) {
-        singleton=new CameraTwoEngine(ctxt);
+    CameraEngine result=null;
+
+    if (!forceClassic &&
+        Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP
+      && !isProblematicDeviceOnNewCameraApi()) {
+      if (singletonTwo==null) {
+        singletonTwo=new CameraTwoEngine(ctxt);
       }
-      else {
-        singleton=new ClassicCameraEngine(ctxt);
+
+      result=singletonTwo;
+    }
+    else {
+      if (singletonClassic==null) {
+        singletonClassic=new ClassicCameraEngine(ctxt);
       }
+
+      result=singletonClassic;
     }
 
-    return(singleton);
+    return(result);
   }
 
   /**
@@ -359,6 +400,14 @@ abstract public class CameraEngine {
     this.pool=pool;
   }
 
+  void setPreferredFlashModes(List<FlashMode> flashModes) {
+    preferredFlashModes=flashModes;
+  }
+
+  boolean hasMoreThanOneEligibleFlashMode() {
+    return(eligibleFlashModes.size()>1);
+  }
+
   private static boolean isProblematicDeviceOnNewCameraApi() {
     if ("Huawei".equals(Build.MANUFACTURER) &&
       "angler".equals(Build.PRODUCT)) {
@@ -402,6 +451,16 @@ abstract public class CameraEngine {
 
     if ("Sony".equals(Build.MANUFACTURER) &&
       "C6802".equals(Build.PRODUCT)) {
+      return(true);
+    }
+
+    if ("samsung".equals(Build.MANUFACTURER) &&
+      "zerofltexx".equals(Build.PRODUCT)) {
+      return(true);
+    }
+
+    if ("OnePlus".equals(Build.MANUFACTURER) &&
+      Build.MODEL.startsWith("ONE E100")) {
       return(true);
     }
 

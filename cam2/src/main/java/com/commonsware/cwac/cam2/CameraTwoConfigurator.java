@@ -39,7 +39,8 @@ public interface CameraTwoConfigurator extends CameraConfigurator {
    * @param captureBuilder the builder for the request, to be
    *                       configured
    */
-  void addToCaptureRequest(CameraCharacteristics cc,
+  void addToCaptureRequest(CameraSession session,
+                           CameraCharacteristics cc,
                            boolean facingFront,
                            CaptureRequest.Builder captureBuilder);
 
@@ -50,6 +51,7 @@ public interface CameraTwoConfigurator extends CameraConfigurator {
    * @param captureBuilder the builder for the request, to be
    *                       configured
    */
-  void addToPreviewRequest(CameraCharacteristics cc,
+  void addToPreviewRequest(CameraSession session,
+                           CameraCharacteristics cc,
                            CaptureRequest.Builder captureBuilder);
 }

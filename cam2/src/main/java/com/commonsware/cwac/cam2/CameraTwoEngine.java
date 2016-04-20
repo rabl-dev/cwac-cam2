@@ -16,8 +16,8 @@ package com.commonsware.cwac.cam2;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -38,15 +38,16 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
-import android.view.WindowManager;
 import com.commonsware.cwac.cam2.util.Size;
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -114,7 +115,8 @@ public class CameraTwoEngine extends CameraEngine {
               ArrayList<Size> sizes=new ArrayList<Size>();
 
               for (android.util.Size size : rawSizes) {
-                if (size.getWidth()<2160 && size.getHeight()<2160) {
+                if (size.getWidth()<2160 &&
+                  size.getHeight()<2160) {
                   sizes.add(
                     new Size(size.getWidth(), size.getHeight()));
                 }
@@ -185,6 +187,35 @@ public class CameraTwoEngine extends CameraEngine {
         Descriptor camera=(Descriptor)session.getDescriptor();
 
         try {
+          CameraCharacteristics cc=
+            mgr.getCameraCharacteristics(camera.getId());
+
+          eligibleFlashModes.clear();
+
+          int[] availModes=cc.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+
+          for (FlashMode flashMode : preferredFlashModes) {
+            for (int rawFlashMode : availModes) {
+              if (rawFlashMode==flashMode.getCameraTwoMode()) {
+                eligibleFlashModes.add(flashMode);
+                break;
+              }
+            }
+          }
+
+          if (eligibleFlashModes.isEmpty()) {
+            for (int rawFlashMode : availModes) {
+              FlashMode flashMode=FlashMode.lookupCameraTwoMode(
+                rawFlashMode);
+
+              if (flashMode!=null) {
+                eligibleFlashModes.add(flashMode);
+              }
+            }
+          }
+
+          session.setCurrentFlashMode(eligibleFlashModes.get(0));
+
           if (!lock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
             throw new RuntimeException("Time out waiting to lock camera opening.");
           }
@@ -263,9 +294,10 @@ public class CameraTwoEngine extends CameraEngine {
           // This is how to tell the camera to lock focus.
           s.previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
               CameraMetadata.CONTROL_AF_TRIGGER_START);
-          s.captureSession.setRepeatingRequest(s.previewRequestBuilder.build(),
-              new RequestCaptureTransaction(s),
-              handler);
+          s.captureSession.setRepeatingRequest(
+            s.previewRequestBuilder.build(),
+            new RequestCaptureTransaction(s),
+            handler);
         }
         catch (Exception e) {
           getBus().post(new PictureTakenEvent(e));
@@ -290,8 +322,89 @@ public class CameraTwoEngine extends CameraEngine {
   }
 
   @Override
-  public void stopVideoRecording(CameraSession session) {
+  public void stopVideoRecording(CameraSession session, boolean abandon) {
     // TODO
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean supportsDynamicFlashModes() {
+    return(true);
+  }
+
+  @Override
+  public boolean supportsZoom(CameraSession session) {
+    boolean result=false;
+    Descriptor descriptor=(Descriptor)session.getDescriptor();
+
+    try {
+      CameraCharacteristics cc=
+        mgr.getCameraCharacteristics(descriptor.cameraId);
+
+      float maxZoom=cc.get(
+        CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
+
+      result=(maxZoom>=1.0f);
+    }
+    catch (CameraAccessException e) {
+      e.printStackTrace();
+    }
+
+    return(result);
+  }
+
+  @Override
+  public boolean zoomTo(CameraSession session,
+                         int zoomLevel) {
+    final Session s=(Session)session;
+    final Descriptor descriptor=(Descriptor)session.getDescriptor();
+
+    if (s.previewRequest!=null) {
+      try {
+        final CameraCharacteristics cc=
+          mgr.getCameraCharacteristics(descriptor.cameraId);
+        final float maxZoom=
+          cc.get(
+            CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
+
+        // if <=1, zoom not possible, so eat the the event
+        if (maxZoom>1.0f) {
+          float zoomTo=1.0f+((float)zoomLevel*(maxZoom-1.0f)/100.0f);
+          Rect zoomRect=cropRegionForZoom(cc, zoomTo);
+
+          s.previewRequestBuilder
+            .set(CaptureRequest.SCALER_CROP_REGION, zoomRect);
+          s.setZoomRect(zoomRect);
+          s.previewRequest=s.previewRequestBuilder.build();
+          s.captureSession.setRepeatingRequest(s.previewRequest,
+            null, handler);
+        }
+      }
+      catch (CameraAccessException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return(false);
+  }
+
+  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  private static Rect cropRegionForZoom(CameraCharacteristics cc,
+                                        float zoomTo) {
+    Rect sensor=
+      cc.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+    int sensorCenterX=sensor.width()/2;
+    int sensorCenterY=sensor.height()/2;
+    int deltaX=(int)(0.5f*sensor.width()/zoomTo);
+    int deltaY=(int)(0.5f*sensor.height()/zoomTo);
+
+    return(new Rect(
+      sensorCenterX-deltaX,
+      sensorCenterY-deltaY,
+      sensorCenterX+deltaX,
+      sensorCenterY+deltaY));
   }
 
   private class InitPreviewTransaction extends CameraDevice.StateCallback {
@@ -370,6 +483,13 @@ public class CameraTwoEngine extends CameraEngine {
 
           Descriptor camera=(Descriptor)s.getDescriptor();
           CameraCharacteristics cc=mgr.getCameraCharacteristics(camera.cameraId);
+
+          if (s.getZoomRect()!=null) {
+            s
+              .previewRequestBuilder
+              .set(CaptureRequest.SCALER_CROP_REGION,
+                s.getZoomRect());
+          }
 
           s.addToPreviewRequest(cc, s.previewRequestBuilder);
 
@@ -492,6 +612,12 @@ public class CameraTwoEngine extends CameraEngine {
 
         Descriptor camera=(Descriptor)s.getDescriptor();
         CameraCharacteristics cc=mgr.getCameraCharacteristics(camera.cameraId);
+
+        if (s.getZoomRect()!=null) {
+          captureBuilder
+            .set(CaptureRequest.SCALER_CROP_REGION,
+              s.getZoomRect());
+        }
 
         s.addToCaptureRequest(cc, camera.isFacingFront, captureBuilder);
 
@@ -658,6 +784,7 @@ public class CameraTwoEngine extends CameraEngine {
     CaptureRequest previewRequest;
     ImageReader reader;
     boolean isClosed=false;
+    Rect zoomRect=null;
 
     private Session(Context ctxt, CameraDescriptor descriptor) {
       super(ctxt, descriptor);
@@ -686,7 +813,7 @@ public class CameraTwoEngine extends CameraEngine {
         CameraTwoConfigurator configurator=plugin.buildConfigurator(CameraTwoConfigurator.class);
 
         if (configurator!=null) {
-          configurator.addToCaptureRequest(cc, isFacingFront, captureBuilder);
+          configurator.addToCaptureRequest(this, cc, isFacingFront, captureBuilder);
         }
       }
     }
@@ -697,7 +824,7 @@ public class CameraTwoEngine extends CameraEngine {
         CameraTwoConfigurator configurator=plugin.buildConfigurator(CameraTwoConfigurator.class);
 
         if (configurator!=null) {
-          configurator.addToPreviewRequest(cc, captureBuilder);
+          configurator.addToPreviewRequest(this, cc, captureBuilder);
         }
       }
     }
@@ -708,6 +835,14 @@ public class CameraTwoEngine extends CameraEngine {
 
     void setClosed(boolean isClosed) {
       this.isClosed=isClosed;
+    }
+
+    Rect getZoomRect() {
+      return(zoomRect);
+    }
+
+    void setZoomRect(Rect zoomRect) {
+      this.zoomRect=zoomRect;
     }
   }
 

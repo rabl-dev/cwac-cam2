@@ -1,5 +1,5 @@
 /***
- Copyright (c) 2015 CommonsWare, LLC
+ Copyright (c) 2015-2016 CommonsWare, LLC
 
  Licensed under the Apache License, Version 2.0 (the "License"); you may
  not use this file except in compliance with the License. You may obtain
@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Stock activity for taking pictures. Supports the same
@@ -49,6 +51,23 @@ public class CameraActivity extends AbstractCameraActivity
    */
   public static final String EXTRA_DEBUG_SAVE_PREVIEW_FRAME=
     "cwac_cam2_save_preview";
+
+  /**
+   * Extra name for whether the camera should allow zoom and
+   * how. Value should be a ZoomStyle (NONE, PINCH, SEEKBAR).
+   * Default is NONE.
+   */
+  public static final String EXTRA_ZOOM_STYLE=
+    "cwac_cam2_zoom_style";
+
+  /**
+   * Extra name for how much heap space we should try to use
+   * to load the picture for the confirmation screen. Should
+   * be a `float` greater than 0.0f and less than 1.0f.
+   * Defaults to not being used.
+   */
+  public static final String EXTRA_CONFIRMATION_QUALITY=
+    "cwac_cam2_confirmation_quality";
 
   private static final String TAG_CONFIRM=ConfirmationFragment.class.getCanonicalName();
   private static final String[] PERMS={Manifest.permission.CAMERA};
@@ -91,7 +110,8 @@ public class CameraActivity extends AbstractCameraActivity
   public void onEventMainThread(CameraEngine.PictureTakenEvent event) {
     if (event.exception==null) {
       if (getIntent().getBooleanExtra(EXTRA_CONFIRM, true)) {
-        confirmFrag.setImage(event.getImageContext());
+        confirmFrag.setImage(event.getImageContext(),
+          getIntent().getExtras().getFloat(EXTRA_CONFIRMATION_QUALITY));
 
         getFragmentManager()
           .beginTransaction()
@@ -167,20 +187,33 @@ public class CameraActivity extends AbstractCameraActivity
     return(false);
   }
 
-  @Override
-  protected CustomCameraFragment buildFragment() {
-      return (CustomCameraFragment.newPictureInstance(getOutputUri(),
-              getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false),
-              getIntent().getStringExtra(EXTRA_STATE)));
-  }
-
   protected void configEngine(CameraEngine engine) {
     if (getIntent()
       .getBooleanExtra(EXTRA_DEBUG_SAVE_PREVIEW_FRAME, false)) {
       engine
         .setDebugSavePreviewFile(new File(getExternalCacheDir(),
-          "cam2-preview.jpg"));
+                "cam2-preview.jpg"));
     }
+
+    List<FlashMode> flashModes=
+      (List<FlashMode>)getIntent().getSerializableExtra(EXTRA_FLASH_MODES);
+
+    if (flashModes==null) {
+      flashModes=new ArrayList<FlashMode>();
+    }
+
+    if (flashModes!=null) {
+      engine.setPreferredFlashModes(flashModes);
+    }
+  }
+
+  @Override
+  protected CustomCameraFragment buildFragment() {
+    return CustomCameraFragment.newPictureInstance(getOutputUri(),
+                getIntent().getBooleanExtra(EXTRA_UPDATE_MEDIA_STORE, false),
+                getIntent().getIntExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1),
+                (ZoomStyle) getIntent().getSerializableExtra(EXTRA_ZOOM_STYLE),
+                getIntent().getStringExtra(EXTRA_STATE));
   }
 
   private void removeFragments() {
@@ -228,6 +261,38 @@ public class CameraActivity extends AbstractCameraActivity
 
     public IntentBuilder debugSavePreviewFrame() {
       result.putExtra(EXTRA_DEBUG_SAVE_PREVIEW_FRAME, true);
+
+      return(this);
+    }
+
+    /**
+     * Call to configure the ZoomStyle to be used. Default
+     * is NONE.
+     *
+     * @return the builder, for further configuration
+     */
+    public IntentBuilder zoomStyle(ZoomStyle zoomStyle) {
+      result.putExtra(EXTRA_ZOOM_STYLE, zoomStyle);
+
+      return(this);
+    }
+
+    /**
+     * Call to set the quality factor for the confirmation screen.
+     * Value should be greater than 0.0f and below 1.0f, and
+     * represents the fraction of the app's heap size that we
+     * should be willing to use for loading the confirmation
+     * image. Defaults to not being used.
+     *
+     * @param quality something in (0.0f, 1.0f] range
+     * @return the builder, for further configuration
+     */
+    public IntentBuilder confirmationQuality(float quality) {
+      if (quality<=0.0f || quality>1.0f) {
+        throw new IllegalArgumentException("Quality outside (0.0f, 1.0f] range!");
+      }
+
+      result.putExtra(EXTRA_CONFIRMATION_QUALITY, quality);
 
       return(this);
     }

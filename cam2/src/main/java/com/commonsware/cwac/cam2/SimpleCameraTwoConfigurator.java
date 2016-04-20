@@ -17,14 +17,16 @@ public class SimpleCameraTwoConfigurator
   }
 
   @Override
-  public void addToCaptureRequest(CameraCharacteristics cc,
+  public void addToCaptureRequest(CameraSession session,
+                                  CameraCharacteristics cc,
                                   boolean facingFront,
                                   CaptureRequest.Builder captureBuilder) {
 
   }
 
   @Override
-  public void addToPreviewRequest(CameraCharacteristics cc,
+  public void addToPreviewRequest(CameraSession session,
+                                  CameraCharacteristics cc,
                                   CaptureRequest.Builder captureBuilder) {
 
   }

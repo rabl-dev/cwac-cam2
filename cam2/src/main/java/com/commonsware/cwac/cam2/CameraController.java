@@ -35,6 +35,7 @@ import de.greenrobot.event.EventBus;
  * by CameraFragment or the equivalent.
  */
 public class CameraController implements CameraView.StateCallback {
+  private final boolean allowChangeFlashMode;
   private CameraEngine engine;
   private CameraSession session;
   private List<CameraDescriptor> cameras=null;
@@ -44,17 +45,19 @@ public class CameraController implements CameraView.StateCallback {
   private Queue<CameraView> availablePreviews=null;
   private boolean switchPending=false;
   private boolean isVideoRecording=false;
-  private final AbstractCameraActivity.FocusMode focusMode;
-  private final List<FlashMode> flashModes;
+  private final FocusMode focusMode;
   private final boolean isVideo;
+  private FlashModePlugin flashModePlugin;
+  private int zoomLevel=0;
+  private int quality=0;
 
-  public CameraController(AbstractCameraActivity.FocusMode focusMode,
-                          List<FlashMode> flashModes,
+  public CameraController(FocusMode focusMode,
+                          boolean allowChangeFlashMode,
                           boolean isVideo) {
     this.focusMode=focusMode==null ?
-      AbstractCameraActivity.FocusMode.CONTINUOUS : focusMode;
-    this.flashModes=flashModes;
+      FocusMode.CONTINUOUS : focusMode;
     this.isVideo=isVideo;
+    this.allowChangeFlashMode=allowChangeFlashMode;
   }
 
   /**
@@ -107,8 +110,10 @@ public class CameraController implements CameraView.StateCallback {
    * from an equivalent point in time, to indicate that you want
    * the camera preview to stop.
    */
-  public void stop() {
+  public void stop() throws Exception {
     if (session!=null) {
+      stopVideoRecording(true);
+
       CameraSession temp=session;
 
       session=null;
@@ -134,7 +139,7 @@ public class CameraController implements CameraView.StateCallback {
    * switch the preview and pictures to the camera other than
    * the one presently being used.
    */
-  public void switchCamera() {
+  public void switchCamera() throws Exception {
     if (session!=null) {
       getPreview(session.getDescriptor()).setVisibility(View.INVISIBLE);
       switchPending=true;
@@ -181,7 +186,7 @@ public class CameraController implements CameraView.StateCallback {
    * @param cv the CameraView that is now destroyed
    */
   @Override
-  public void onDestroyed(CameraView cv) {
+  public void onDestroyed(CameraView cv) throws Exception {
     stop();
   }
 
@@ -205,15 +210,56 @@ public class CameraController implements CameraView.StateCallback {
     }
   }
 
-  public void stopVideoRecording() throws Exception {
+  public void stopVideoRecording(boolean abandon) throws Exception {
     if (session!=null && isVideoRecording) {
       try {
-        engine.stopVideoRecording(session);
+        engine.stopVideoRecording(session, abandon);
       }
       finally {
         isVideoRecording=false;
       }
     }
+  }
+
+  public void setQuality(int quality) {
+    this.quality=quality;
+  }
+
+  public boolean canToggleFlashMode() {
+    return(allowChangeFlashMode &&
+      engine.supportsDynamicFlashModes() &&
+      engine.hasMoreThanOneEligibleFlashMode());
+  }
+
+  public FlashMode getCurrentFlashMode() {
+    return(session.getCurrentFlashMode());
+  }
+
+  boolean supportsZoom() {
+    return(engine.supportsZoom(session));
+  }
+
+  boolean changeZoom(int delta) {
+    zoomLevel+=delta;
+
+    return(handleZoom());
+  }
+
+  boolean setZoom(int zoomLevel) {
+    this.zoomLevel=zoomLevel;
+
+    return(handleZoom());
+  }
+
+  private boolean handleZoom() {
+    if (zoomLevel<0) {
+      zoomLevel=0;
+    }
+    else if (zoomLevel>100) {
+      zoomLevel=100;
+    }
+
+    return(engine.zoomTo(session, zoomLevel));
   }
 
   private CameraView getPreview(CameraDescriptor camera) {
@@ -242,11 +288,18 @@ public class CameraController implements CameraView.StateCallback {
       Size previewSize=null;
       CameraDescriptor camera=cameras.get(currentCamera);
       CameraView cv=getPreview(camera);
-      Size largest=Utils.getLargestPictureSize(camera);
+      Size pictureSize;
+
+      if (quality>0) {
+        pictureSize=Utils.getLargestPictureSize(camera);
+      }
+      else {
+        pictureSize=Utils.getSmallestPictureSize(camera);
+      }
 
       if (camera != null && cv.getWidth() > 0 && cv.getHeight() > 0) {
         previewSize=Utils.chooseOptimalSize(camera.getPreviewSizes(),
-            cv.getWidth(), cv.getHeight(), largest);
+            cv.getWidth(), cv.getHeight(), pictureSize);
       }
 
       SurfaceTexture texture=cv.getSurfaceTexture();
@@ -257,14 +310,15 @@ public class CameraController implements CameraView.StateCallback {
               previewSize.getHeight());
         }
 
+        flashModePlugin=new FlashModePlugin();
+
         session=engine
             .buildSession(cv.getContext(), camera)
             .addPlugin(new SizeAndFormatPlugin(previewSize,
-              largest, ImageFormat.JPEG))
+              pictureSize, ImageFormat.JPEG))
             .addPlugin(new OrientationPlugin(cv.getContext()))
             .addPlugin(new FocusModePlugin(cv.getContext(), focusMode, isVideo))
-            .addPlugin(
-              new FlashModePlugin(flashModes))
+            .addPlugin(flashModePlugin)
             .build();
 
         session.setPreviewSize(previewSize);

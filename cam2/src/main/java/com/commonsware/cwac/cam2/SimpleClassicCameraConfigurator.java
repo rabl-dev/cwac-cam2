@@ -11,13 +11,15 @@ import android.media.MediaRecorder;
 public class SimpleClassicCameraConfigurator implements ClassicCameraConfigurator {
   @Override
   public Camera.Parameters configureStillCamera(
+    CameraSession session,
     Camera.CameraInfo info,
     Camera camera, Camera.Parameters params) {
     return null;
   }
 
   @Override
-  public void configureRecorder(int cameraId,
+  public void configureRecorder(CameraSession session,
+                                int cameraId,
                                 VideoTransaction xact,
                                 MediaRecorder recorder) {
     // no-op

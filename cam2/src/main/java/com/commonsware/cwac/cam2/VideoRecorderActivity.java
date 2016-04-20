@@ -122,20 +122,6 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
     }
 
     /**
-     * Indicates the video quality to use for recording this
-     * video. Matches EXTRA_VIDEO_QUALITY, except uses an enum
-     * for type safety.
-     *
-     * @param q LOW or HIGH
-     * @return the builder, for further configuration
-     */
-    public IntentBuilder quality(Quality q) {
-      result.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, q.getValue());
-
-      return(this);
-    }
-
-    /**
      * Sets the maximum size of the video file in bytes. Maps
      * to EXTRA_SIZE_LIMIT.
      *
@@ -162,17 +148,4 @@ public class VideoRecorderActivity extends AbstractCameraActivity {
     }
   }
 
-  public enum Quality {
-    LOW(0), HIGH(1);
-
-    private final int value;
-
-    private Quality(int value) {
-      this.value=value;
-    }
-
-    int getValue() {
-      return(value);
-    }
-  }
 }

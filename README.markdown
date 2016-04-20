@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.commonsware.cwac:cam2:0.4.+'
+    compile 'com.commonsware.cwac:cam2:0.5.7'
 }
 ```
 
@@ -55,7 +55,6 @@ library project2 in source form.
 
 Basic Usage
 -----------
-
 The only supported API at the moment is through
 [`CameraActivity` and its `IntentBuilder`](docs/CameraActivity.md) for
 still pictures and
@@ -73,6 +72,14 @@ ones that *may* be exposed as part of a public API in the future,
 the library-provided activities. In other words, do not have
 `android:hardwareAccelerated="false"` for your whole
 `<application>` in the manifest.
+
+Upgrade Notes
+-------------
+If you are moving from 0.3.x or 0.4.x to 0.5.0 or higher, please
+note that `FocusMode` is no longer an inner `enum` of
+`AbstractCameraActivity`, but rather is a standalone Java file.
+You will need to switch your import statement to
+`com.commonsware.cwac.cam2.FocusMode`.
 
 Tested Devices
 --------------
@@ -103,14 +110,15 @@ use of it, from being obfuscated.
 
 Version
 -------
-This is version v0.4.4 of this library, which means it is coming
+This is version v0.5.7 of this library, which means it is coming
 along slowly.
 
 Demo
 ----
 There are two demo projects.
 
-One is `demo/`. This illustrates taking pictures using the front
+One is `demo/`. This illustrates taking pictures or recording
+videos using the front
 and rear-facing cameras. More importantly, it serves as a way of
 collecting information about a device, particularly if you are
 going to [file a bug report](CONTRIBUTING.md).
@@ -146,7 +154,7 @@ what CWAC module you are having issues with, and be sure to include source code
 and stack traces if you are encountering crashes.
 
 If you have encountered what is clearly a bug, or if you have a feature request,
-please read [the contribution guidelines](CONTRIBUTING.md), then
+please read [the contribution guidelines](.github/CONTRIBUTING.md), then
 post an [issue](https://github.com/commonsguy/cwac-cam2/issues).
 **Be certain to include complete steps for reproducing the issue.**
 
@@ -154,6 +162,14 @@ Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.5.7: improved [OnePlus X compatibility](https://github.com/commonsguy/cwac-cam2/issues/175), allow [configurable confirmation quality](https://github.com/commonsguy/cwac-cam2/issues/180), [block camera-change FAB in exact-match scenario](https://github.com/commonsguy/cwac-cam2/issues/182) 
+- v0.5.6: added quality control to still photos, added video recording to `demo/`
+- v0.5.5: fixed [LG G3 video bug](https://github.com/commonsguy/cwac-cam2/issues/168) and [disable camera changes during video recording](https://github.com/commonsguy/cwac-cam2/issues/172)
+- v0.5.4: fixed [two](https://github.com/commonsguy/cwac-cam2/issues/155) video [recording](https://github.com/commonsguy/cwac-cam2/issues/159) bugs
+- v0.5.3: reverts [inadequate shutdown](https://github.com/commonsguy/cwac-cam2/issues/155) change from v0.5.2 due to bugs
+- v0.5.2: fixed [zoom](https://github.com/commonsguy/cwac-cam2/issues/149), [inadequate shutdown](https://github.com/commonsguy/cwac-cam2/issues/155), and [dual engines](https://github.com/commonsguy/cwac-cam2/issues/156) issues
+- v0.5.1: fixed [critical bug in video recording](https://github.com/commonsguy/cwac-cam2/issues/154)
+- v0.5.0: added zoom support, better display orientation support
 - v0.4.4: added Nexus 5X, Galaxy S4 Zoom to alt orientation whitelist
 - v0.4.3: too-large camera preview issue fix
 - v0.4.2: Camera2 API timing issue fix

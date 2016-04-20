@@ -30,9 +30,9 @@
     android:layout_alignParentRight="true"
     android:layout_marginBottom="16dp"
     android:layout_marginRight="16dp"
+    android:src="@drawable/cwac_cam2_ic_action_camera"
     fab:fab_colorNormal="@color/cwac_cam2_picture_fab"
-    fab:fab_colorPressed="@color/cwac_cam2_picture_fab_pressed"
-    android:src="@drawable/cwac_cam2_ic_action_camera"/>
+    fab:fab_colorPressed="@color/cwac_cam2_picture_fab_pressed"/>
 
   <com.github.clans.fab.FloatingActionMenu
     android:id="@+id/cwac_cam2_settings"
@@ -56,4 +56,15 @@
       fab:fab_size="mini"/>
 
   </com.github.clans.fab.FloatingActionMenu>
+
+  <SeekBar
+    android:id="@+id/cwac_cam2_zoom"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_toLeftOf="@id/cwac_cam2_picture"
+    android:layout_toStartOf="@id/cwac_cam2_picture"
+    android:layout_marginBottom="8dp"
+    android:max="100"
+    android:visibility="gone"/>
 </RelativeLayout>

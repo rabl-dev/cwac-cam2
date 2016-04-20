@@ -36,6 +36,7 @@ public class CameraSession {
   private Context ctxt;
   private final ArrayList<CameraPlugin> plugins=new ArrayList<CameraPlugin>();
   private Size previewSize;
+  private FlashMode currentFlashMode;
 
   /**
    * Constructor.
@@ -82,6 +83,14 @@ public class CameraSession {
 
   public void setPreviewSize(Size previewSize) {
     this.previewSize=previewSize;
+  }
+
+  public FlashMode getCurrentFlashMode() {
+    return(currentFlashMode);
+  }
+
+  void setCurrentFlashMode(FlashMode currentFlashMode) {
+    this.currentFlashMode=currentFlashMode;
   }
 
   /**

@@ -12,10 +12,10 @@
 	<string name="title_update_media_store">Update MediaStore</string>
 	<string name="title_force_classic">Force classic API</string>
 	<string name="title_video">Capture video</string>
-	<string name="title_quality">Record high-quality video</string>
+	<string name="title_quality">Use high quality</string>
 	<string name="title_duration">Set duration limit</string>
 	<string name="title_size">Set size limit</string>
-	<string name="title_mirror_preview">Mirror Preview</string>
+	<string name="title_mirror_preview">Mirror preview</string>
 	<string name="title_exact_match">Fail if no camera match</string>
 	<string name="title_focus_mode">Focus mode</string>
 	<string name="menu_switch_video">Switch to Video</string>
@@ -23,5 +23,8 @@
 	<string name="title_save_preview">Save preview frame</string>
 	<string name="title_flash_mode">Flash mode</string>
 	<string name="title_use_chooser">Use chooser</string>
+	<string name="title_allow_switch_flash_mode">Allow user to switch flash mode</string>
+	<string name="title_zoom_style">Zoom style</string>
+	<string name="title_confirmation_quality">Confirmation quality</string>
 
 </resources>

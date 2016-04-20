@@ -24,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
+import com.commonsware.cwac.cam2.Facing;
+import com.commonsware.cwac.cam2.FocusMode;
 import com.commonsware.cwac.cam2.VideoRecorderActivity;
 import java.io.File;
 
@@ -80,17 +82,17 @@ public class VideoFragment extends PreferenceFragment {
     ((Contract)getActivity()).setOutput(Uri.fromFile(f));
 
     if (prefs.getBoolean("highQuality", false)) {
-      b.quality(VideoRecorderActivity.Quality.HIGH);
+      b.quality(AbstractCameraActivity.Quality.HIGH);
     }
     else {
-      b.quality(VideoRecorderActivity.Quality.LOW);
+      b.quality(AbstractCameraActivity.Quality.LOW);
     }
 
     if (prefs.getBoolean("ffc", false)) {
-      b.facing(AbstractCameraActivity.Facing.FRONT);
+      b.facing(Facing.FRONT);
     }
     else {
-      b.facing(AbstractCameraActivity.Facing.BACK);
+      b.facing(Facing.BACK);
     }
 
     if (prefs.getBoolean("exact_match", false)) {
@@ -130,13 +132,13 @@ public class VideoFragment extends PreferenceFragment {
 
     switch (rawFocusMode) {
       case 0:
-        b.focusMode(AbstractCameraActivity.FocusMode.CONTINUOUS);
+        b.focusMode(FocusMode.CONTINUOUS);
         break;
       case 1:
-        b.focusMode(AbstractCameraActivity.FocusMode.OFF);
+        b.focusMode(FocusMode.OFF);
         break;
       case 2:
-        b.focusMode(AbstractCameraActivity.FocusMode.EDOF);
+        b.focusMode(FocusMode.EDOF);
         break;
     }
 

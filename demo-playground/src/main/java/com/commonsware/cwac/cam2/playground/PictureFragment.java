@@ -20,13 +20,15 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
 import com.commonsware.cwac.cam2.CameraActivity;
+import com.commonsware.cwac.cam2.Facing;
 import com.commonsware.cwac.cam2.FlashMode;
+import com.commonsware.cwac.cam2.FocusMode;
+import com.commonsware.cwac.cam2.ZoomStyle;
 import java.io.File;
 
 public class PictureFragment extends PreferenceFragment {
@@ -82,10 +84,10 @@ public class PictureFragment extends PreferenceFragment {
     }
 
     if (prefs.getBoolean("ffc", false)) {
-      b.facing(AbstractCameraActivity.Facing.FRONT);
+      b.facing(Facing.FRONT);
     }
     else {
-      b.facing(AbstractCameraActivity.Facing.BACK);
+      b.facing(Facing.BACK);
     }
 
     if (prefs.getBoolean("exact_match", false)) {
@@ -116,18 +118,25 @@ public class PictureFragment extends PreferenceFragment {
       b.mirrorPreview();
     }
 
-    int rawFocusMode=Integer.valueOf(
-      prefs.getString("focusMode", "-1"));
+    if (prefs.getBoolean("highQuality", false)) {
+      b.quality(AbstractCameraActivity.Quality.HIGH);
+    }
+    else {
+      b.quality(AbstractCameraActivity.Quality.LOW);
+    }
+
+    int rawFocusMode=
+      Integer.valueOf(prefs.getString("focusMode", "-1"));
 
     switch (rawFocusMode) {
       case 0:
-        b.focusMode(AbstractCameraActivity.FocusMode.CONTINUOUS);
+        b.focusMode(FocusMode.CONTINUOUS);
         break;
       case 1:
-        b.focusMode(AbstractCameraActivity.FocusMode.OFF);
+        b.focusMode(FocusMode.OFF);
         break;
       case 2:
-        b.focusMode(AbstractCameraActivity.FocusMode.EDOF);
+        b.focusMode(FocusMode.EDOF);
         break;
     }
 
@@ -135,8 +144,8 @@ public class PictureFragment extends PreferenceFragment {
       b.debugSavePreviewFrame();
     }
 
-    int rawFlashMode=Integer.valueOf(
-      prefs.getString("flashMode", "-1"));
+    int rawFlashMode=
+      Integer.valueOf(prefs.getString("flashMode", "-1"));
 
     switch (rawFlashMode) {
       case 0:
@@ -153,6 +162,23 @@ public class PictureFragment extends PreferenceFragment {
         break;
     }
 
+    if (prefs.getBoolean("allowSwitchFlashMode", false)) {
+      b.allowSwitchFlashMode();
+    }
+
+    int rawZoomStyle=
+      Integer.valueOf(prefs.getString("zoomStyle", "0"));
+
+    switch (rawZoomStyle) {
+      case 1:
+        b.zoomStyle(ZoomStyle.PINCH);
+        break;
+
+      case 2:
+        b.zoomStyle(ZoomStyle.SEEKBAR);
+        break;
+    }
+
     Intent result;
 
     if (prefs.getBoolean("useChooser", false)) {
@@ -160,6 +186,13 @@ public class PictureFragment extends PreferenceFragment {
     }
     else {
       result=b.build();
+    }
+
+    String confirmationQuality=prefs.getString("confirmationQuality", null);
+
+    if (confirmationQuality!=null &&
+      !"Default".equals(confirmationQuality)) {
+      b.confirmationQuality(Float.parseFloat(confirmationQuality));
     }
 
     ((Contract)getActivity()).takePicture(result);

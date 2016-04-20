@@ -1,5 +1,57 @@
 # Compatibility Status
 
+## Version 0.5.x
+| Device                         | Identifier                  | Version | Issues |
+| ------------------------------ |:---------------------------:|:-------:|--------|
+| Amazon Kindle Fire HD 6        | `Amazon`/`full_ariel`       | 4.4.3   | |
+| Amazon Fire (7")               | `Amazon`/`full_ford`        | 5.1.1   | |
+| Amazon Fire HD 10              | `Amazon`/`full_thebes`      | 5.1     | |
+| Amazon Fire Phone              | `Amazon`/`juniper`          | 4.4.4   | |
+| ASUS ZenFone Zoom ZX550 (ZX551ML) | `asus`/`WW_Z00X`         | 5.0     | | 
+| BlackBerry Priv                | `blackberry`/`venicena`     | 5.1.1   | |
+| Google Galaxy Nexus            | `samsung`/`yakju`           | 4.3     | |
+| Google Nexus 5                 | `LGE`/`hammerhead`          | 6.0.1   | |
+| Google Nexus 5X                | `LGE`/`bullhead`            | 6.0.1   | |
+| Google Nexus 6P                | `Huawei`/`angler`           | 6.0.1   | |
+| Google Nexus 10                | `samsung`/`mantaray`        | 5.1.1   | |
+| HTC Incredible HD              | `HTC`/`htc_mecha`           | 4.0.4   | [32](https://github.com/commonsguy/cwac-cam2/issues/32) [33](https://github.com/commonsguy/cwac-cam2/issues/33) |
+| HTC One A9                     | `HTC`/`hiaeuhl_00709`       | 6.0.1   | |
+| HTC One M7 GPE                 | `HTC`/`m7_google`           | 5.1     | |
+| HTC One S                      | `HTC`/`tmous`               | 4.1.1   | [35](https://github.com/commonsguy/cwac-cam2/issues/35) |
+| Huawei Honor 5X                | `HUAWEI`/`KIW-L24`          | 5.1.1   | |
+| LG G2                          | `LGE`/`g2_open_com`         | 4.4.2   | |
+| LG G3                          | `LGE`/`g3_tmo_us`           | 5.0.1   | |
+| LG G-Pad                       | `LGE`/`palman`              | 5.1     | |
+| Motorola Moto E XT1022         | `motorola`/`condor_retla_ds`| 4.4.4   | |
+| NVIDIA Shield K1               | `NVIDIA`/`sb_na_wf`         | 6.0     | |
+| OnePlus X (E1005)              | `OnePlus`/`MODEL`=`ONE E1005` | 5.1.1 | |
+| Samsung Galaxy Ace 3           | `samsung`/`loganub`         | 4.2.2   | |
+| Samsung Galaxy Camera EK-GC110 | `samsung`/`gd1wifiue`       | 4.1.2   | |
+| Samsung Galaxy Camera EK-GC200 | `samsung`/`sf2wifixx`       | 4.3     | |
+| Samsung Galaxy Grand GT-I9080L | `samsung`/`baffinssvj`      | 4.2.2   | |
+| Samsung Galaxy Note 2 GT-N7100 | `samsung`/`t03gxx`          | 4.1.2   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy Note 3 SM-N900  | `samsung`/`ha3gub`          | 5.0   | |
+| Samsung Galaxy Pocket Neo      | `samsung`/`corsicadd`       | 4.1.2   | |
+| Samsung Galaxy S III           | `samsung`/`d2lterefreshspr` | 4.4.2   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy S III           | `samsung`/`d2tmo`           | 4.3     | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy S III           | `samsung`/`d2uc`            | 4.4.2   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy S III           | `samsung`/`m0xx`            | 4.3     | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy S4              | `samsung`/`ja3gxx`          | 5.0.1   | |
+| Samsung Galaxy S4              | `samsung`/`jfltespr`        | 5.0.1   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) [151](https://github.com/commonsguy/cwac-cam2/issues/151) |
+| Samsung Galaxy S4              | `samsung`/`jflteuc`         | 4.2.2   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy S4 Zoom         | `samsung`/`mprojectlteuc`   | 4.2.2   | [146](https://github.com/commonsguy/cwac-cam2/issues/146) [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Samsung Galaxy S5              | `samsung`/`k3gxx`           | 5.0     | |
+| Samsung Galaxy S6 (G920F)      | `samsung`/`zerofltexx`      | 6.0.1   | |
+| SONY Xperia E (C1505)          | `Sony`/`C1505`              | 4.1.1   | |
+| SONY Xperia E4 Dual (E2115)    | `Sony`/`E2115`              | 4.4.4   | |
+| SONY Xperia S (LT26i)          | `Sony Ericsson`/`LT26i_1257-4921` | 4.1.2 | [97](https://github.com/commonsguy/cwac-cam2/issues/97) |
+| SONY Xperia Z (C6603)          | `Sony`/`C6603`              | 5.1.1   | |
+| SONY Xperia Z Ultra (C6802)    | `Sony`/`C6802`              | 5.1.1   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| SONY Xperia Z3 Compact         | `Sony`/`D5803`              | 5.1.1   | [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
+| Tesco (Pegatron) hudl 2        | `Pegatron`/`HTF8A4XX`       | 5.1     | |
+| Wileyfox Swift                 | `Wileyfox`/`Swift`          | 5.1.1 (CM 12.1) | |
+| Xiaomi Redmi                   | `Xiaomi`/`2014501`          | 4.4.2   | [35](https://github.com/commonsguy/cwac-cam2/issues/35) |
+
 ## Version 0.4.x
 
 | Device                         | Identifier                  | Version | Issues |
@@ -24,6 +76,7 @@
 | HTC One A9                     | `HTC`/`hiaeuhl_00709`       | 6.0   | |
 | HTC One M7 GPE                 | `HTC`/`m7_google`           | 5.1     | |
 | HTC One S                      | `HTC`/`tmous`               | 4.1.1 | [35](https://github.com/commonsguy/cwac-cam2/issues/35) |
+| Huawei Honor 5X                | `HUAWEI`/`KIW-L24`          | 5.1.1 | |
 | LG G2                          | `LGE`/`g2_open_com`         | 4.4.2 | |
 | Motorola Moto E XT1022         | `motorola`/`condor_retla_ds`| 4.4.4 | |
 | NVIDIA Shield K1               | `NVIDIA`/`sb_na_wf`         | 6.0   | |

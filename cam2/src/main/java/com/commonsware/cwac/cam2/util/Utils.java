@@ -14,7 +14,6 @@
 
 package com.commonsware.cwac.cam2.util;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -104,6 +103,26 @@ public class Utils {
         int newArea=size.getWidth() * size.getHeight();
 
         if (newArea > resultArea) {
+          result=size;
+        }
+      }
+    }
+
+    return(result);
+  }
+
+  public static Size getSmallestPictureSize(CameraDescriptor descriptor) {
+    Size result=null;
+
+    for (Size size : descriptor.getPictureSizes()) {
+      if (result == null) {
+        result=size;
+      }
+      else {
+        int resultArea=result.getWidth() * result.getHeight();
+        int newArea=size.getWidth() * size.getHeight();
+
+        if (newArea < resultArea) {
           result=size;
         }
       }

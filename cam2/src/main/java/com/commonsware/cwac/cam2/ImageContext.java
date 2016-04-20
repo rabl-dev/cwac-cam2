@@ -14,7 +14,9 @@
 
 package com.commonsware.cwac.cam2;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -83,12 +85,26 @@ public class ImageContext {
     return(bmp);
   }
 
-  public Bitmap buildPreviewThumbnail() {
+  public Bitmap buildPreviewThumbnail(Context ctxt, Float quality) {
     // TODO: move this into PictureTransaction work somewhere, so done
     // on a background thread
 
     if (thumbnail==null) {
-      thumbnail=createThumbnail(200000.0d, null, 2000000);
+      int limit=2000000;
+
+      if (quality!=null && quality>0.0f && quality<1.0f) {
+        ActivityManager am=(ActivityManager)ctxt.getSystemService(Context.ACTIVITY_SERVICE);
+        int flags=ctxt.getApplicationInfo().flags;
+        int memoryClass=am.getMemoryClass();
+
+        if ((flags & ApplicationInfo.FLAG_LARGE_HEAP)!=0) {
+          memoryClass=am.getLargeMemoryClass();
+        }
+
+        limit=(int)(1024*1024*memoryClass*quality);
+      }
+
+      thumbnail=createThumbnail(null, limit);
     }
 
     return(thumbnail);
@@ -97,11 +113,11 @@ public class ImageContext {
   public Bitmap buildResultThumbnail() {
     // TODO: move this onto background thread
 
-    return(createThumbnail(100000.0d, null, 950000));
+    return(createThumbnail(null, 750000));
   }
 
-  private Bitmap createThumbnail(double jpegLengthGuess, Bitmap inBitmap, int limit) {
-    double ratio=(double)jpeg.length / jpegLengthGuess;
+  private Bitmap createThumbnail(Bitmap inBitmap, int limit) {
+    double ratio=(double)jpeg.length * 10.0d / (double)limit;
     int inSampleSize;
 
     if (ratio > 1.0d) {

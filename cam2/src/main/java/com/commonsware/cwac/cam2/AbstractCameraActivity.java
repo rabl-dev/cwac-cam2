@@ -25,11 +25,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.FrameLayout;
 import com.commonsware.cwac.cam2.util.Utils;
 import java.io.File;
 import java.util.ArrayList;
@@ -53,6 +53,14 @@ abstract public class AbstractCameraActivity extends Activity {
    */
   public static final String EXTRA_FLASH_MODES=
     "cwac_cam2_flash_modes";
+
+  /**
+   * True if we should allow the user to change the flash mode
+   * on the fly (if the camera supports it), false otherwise.
+   * Defaults to false.
+   */
+  public static final String EXTRA_ALLOW_SWITCH_FLASH_MODE=
+    "cwac_cam2_allow_switch_flash_mode";
 
   /**
    * @return true if the activity wants FEATURE_ACTION_BAR_OVERLAY,
@@ -246,6 +254,13 @@ abstract public class AbstractCameraActivity extends Activity {
   public void onStop() {
     EventBus.getDefault().unregister(this);
 
+    if (isChangingConfigurations()) {
+      cameraFrag.stopVideoRecording();
+    }
+    else {
+      cameraFrag.shutdown();
+    }
+
     super.onStop();
   }
 
@@ -301,15 +316,12 @@ abstract public class AbstractCameraActivity extends Activity {
 
       FocusMode focusMode=
         (FocusMode)getIntent().getSerializableExtra(EXTRA_FOCUS_MODE);
-      List<FlashMode> flashModes=
-        (List<FlashMode>)getIntent().getExtras().getSerializable(EXTRA_FLASH_MODES);
-
-      if (flashModes==null) {
-        flashModes=new ArrayList<FlashMode>();
-      }
+      boolean allowChangeFlashMode=
+        getIntent().getBooleanExtra(EXTRA_ALLOW_SWITCH_FLASH_MODE, false);
 
       CameraController ctrl=
-        new CameraController(focusMode, flashModes,isVideo());
+        new CameraController(focusMode, allowChangeFlashMode,
+          isVideo());
 
       cameraFrag.setController(ctrl);
       cameraFrag
@@ -350,6 +362,10 @@ abstract public class AbstractCameraActivity extends Activity {
     }
   }
 
+  boolean canSwitchSources() {
+    return(!getIntent().getBooleanExtra(EXTRA_FACING_EXACT_MATCH, false));
+  }
+
   @TargetApi(23)
   private boolean hasPermission(String perm) {
     if (useRuntimePermissions()) {
@@ -375,19 +391,18 @@ abstract public class AbstractCameraActivity extends Activity {
     return(result.toArray(new String[result.size()]));
   }
 
-  /**
-   * Possible values for the facing property
-   */
-  public enum Facing {
-    FRONT, BACK;
+  public enum Quality {
+    LOW(0), HIGH(1);
 
-    boolean isFront() {
-      return(this==FRONT);
+    private final int value;
+
+    private Quality(int value) {
+      this.value=value;
     }
-  }
 
-  public enum FocusMode {
-    CONTINUOUS, OFF, EDOF
+    int getValue() {
+      return(value);
+    }
   }
 
   abstract public static class IntentBuilder<T extends IntentBuilder> {
@@ -601,6 +616,31 @@ abstract public class AbstractCameraActivity extends Activity {
     public T flashModes(List<FlashMode> modes) {
       result.putExtra(EXTRA_FLASH_MODES,
         new ArrayList<FlashMode>(modes));
+
+      return((T)this);
+    }
+
+    /**
+     * Call if we should allow the user to change the flash mode
+     * on the fly (if the camera supports it).
+     */
+    public T allowSwitchFlashMode() {
+      result.putExtra(EXTRA_ALLOW_SWITCH_FLASH_MODE, true);
+
+      return((T)this);
+    }
+
+    /**
+     * Indicates the video quality to use for recording this
+     * video. Matches EXTRA_VIDEO_QUALITY, except uses an enum
+     * for type safety. Note that this is also used for still
+     * image quality, despite the name of the extra.
+     *
+     * @param q LOW or HIGH
+     * @return the builder, for further configuration
+     */
+    public T quality(Quality q) {
+      result.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, q.getValue());
 
       return((T)this);
     }

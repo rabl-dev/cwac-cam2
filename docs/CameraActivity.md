@@ -29,9 +29,12 @@ and what their behavior is:
 | `to()`                     | `MediaStore.EXTRA_OUTPUT`        | `Uri` (though `to()` also accepts `File`) | Destination for picture to be written, where `null` means to return a thumbnail via the `data` extra (default is `null`) |
 | `updateMediaStore()`       | `EXTRA_UPDATE_MEDIA_STORE`       | `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
 | `mirrorPreview()`          | `EXTRA_MIRROR_PREVIEW`           | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
-| `focusMode()`              | `EXTRA_FOCUS_MODE`               | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
+| `focusMode()`              | `EXTRA_FOCUS_MODE`               | `FocusMode`                               | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
 | `debugSavePreviewFrame()`  | `EXTRA_DEBUG_SAVE_PREVIEW_FRAME` | `boolean`                                 | Indicate if a preview frame should be saved when a picture is taken (default is `false`) |
 | `flashModes()`             | `EXTRA_FLASH_MODES`              | `List<FlashMode>`                         | Request a particular flash mode `FlashMode.OFF`, `FlashMode.ALWAYS`, `FlashMode.AUTO`, `FlashMode.REDYE` (default is device default) |
+| `zoomStyle()`              | `EXTRA_ZOOM_STYLE`               | `ZoomStyle`                               | Request to allow the user to change zoom levels, via gestures (`ZoomStyle.PINCH`) or a `SeekBar` (`ZoomStyle.SEEKBAR`). Default is `ZoomStyle.NONE` for no zoom option |
+| `quality()`                | `MediaStore.EXTRA_VIDEO_QUALITY` | `AbstractCameraActivity.Quality`          | Indicate the quality, either `Quality.LOW` or `Quality.HIGH` (default=high) |
+| `confirmationQuality()`    | `EXTRA_CONFIRMATION_QUALITY`     | `float` in the (0.0f, 1.0f] range         | The fraction of the app's heap limit that we should be willing to try to use to load the image for confirmation |
 
 Note that if you are going to use `skipConfirm()`, you need to call
 that first on the `IntentBuilder` before any of the others.
@@ -65,6 +68,7 @@ behavior is will be performed, which is usually no flash.
       .facing(CameraActivity.Facing.FRONT)
       .to(new File(testRoot, "portrait-front.jpg"))
       .debug()
+      .zoomStyle(ZoomStyle.SEEKBAR)
       .updateMediaStore()
       .build();
 

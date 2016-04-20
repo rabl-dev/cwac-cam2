@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 public class ConfirmationFragment extends Fragment {
+  private Float quality;
+
   public interface Contract {
     void completeRequest(ImageContext imageContext, boolean isOK);
     void retakePicture();
@@ -67,7 +69,7 @@ public class ConfirmationFragment extends Fragment {
     iv=new ImageView(getActivity());
 
     if (imageContext!=null) {
-      loadImage();
+      loadImage(quality);
     }
 
     return(iv);
@@ -125,11 +127,12 @@ public class ConfirmationFragment extends Fragment {
     return(true);
   }
 
-  public void setImage(ImageContext imageContext) {
+  public void setImage(ImageContext imageContext, Float quality) {
     this.imageContext=imageContext;
+    this.quality=quality;
 
     if (iv!=null) {
-      loadImage();
+      loadImage(quality);
     }
   }
 
@@ -137,7 +140,7 @@ public class ConfirmationFragment extends Fragment {
     return((Contract)getActivity());
   }
 
-  private void loadImage() {
-    iv.setImageBitmap(imageContext.buildPreviewThumbnail());
+  private void loadImage(Float quality) {
+    iv.setImageBitmap(imageContext.buildPreviewThumbnail(getActivity(), quality));
   }
 }

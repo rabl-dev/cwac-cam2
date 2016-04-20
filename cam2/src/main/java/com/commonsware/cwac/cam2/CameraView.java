@@ -21,6 +21,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.WindowManager;
@@ -34,7 +35,7 @@ import com.commonsware.cwac.cam2.util.Size;
 public class CameraView extends TextureView implements TextureView.SurfaceTextureListener {
   public interface StateCallback {
     void onReady(CameraView cv);
-    void onDestroyed(CameraView cv);
+    void onDestroyed(CameraView cv) throws Exception;
   }
 
   /**
@@ -160,7 +161,13 @@ public class CameraView extends TextureView implements TextureView.SurfaceTextur
   @Override
   public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
     if (stateCallback!=null) {
-      stateCallback.onDestroyed(this);
+      try {
+        stateCallback.onDestroyed(this);
+      }
+      catch (Exception e) {
+        Log.e(getClass().getSimpleName(),
+          "Exception destroying state", e);
+      }
     }
 
     return(false);

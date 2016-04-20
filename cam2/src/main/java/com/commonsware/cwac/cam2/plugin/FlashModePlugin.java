@@ -37,12 +37,6 @@ import java.util.List;
  * Plugin for managing flash modes
  */
 public class FlashModePlugin implements CameraPlugin {
-  private final List<FlashMode> flashModes;
-
-  public FlashModePlugin(List<FlashMode> flashModes) {
-    this.flashModes=flashModes;
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -77,39 +71,11 @@ public class FlashModePlugin implements CameraPlugin {
      */
     @Override
     public Camera.Parameters configureStillCamera(
+      CameraSession session,
       Camera.CameraInfo info,
       Camera camera, Camera.Parameters params) {
-      if (params!=null) {
-        String desiredMode=null;
-        boolean matched=false;
-
-        for (FlashMode mode : flashModes) {
-          if (mode==FlashMode.OFF) {
-            desiredMode=Camera.Parameters.FLASH_MODE_OFF;
-          }
-          else if (mode==FlashMode.ALWAYS) {
-            desiredMode=Camera.Parameters.FLASH_MODE_ON;
-          }
-          else if (mode==FlashMode.AUTO) {
-            desiredMode=Camera.Parameters.FLASH_MODE_AUTO;
-          }
-          else if (mode==FlashMode.REDEYE) {
-            desiredMode=Camera.Parameters.FLASH_MODE_RED_EYE;
-          }
-
-          List<String> supportedModes=params.getSupportedFlashModes();
-
-          if (supportedModes!=null &&
-            supportedModes.contains(desiredMode)) {
-            params.setFlashMode(desiredMode);
-            matched=true;
-            break;
-          }
-        }
-
-        if (!matched) {
-          Log.w("CWAC-Cam2", "no support for requested flash mode");
-        }
+      if (params!=null && session.getCurrentFlashMode()!=null) {
+        params.setFlashMode(session.getCurrentFlashMode().getClassicMode());
       }
 
       return(params);
@@ -122,61 +88,24 @@ public class FlashModePlugin implements CameraPlugin {
      * {@inheritDoc}
      */
     @Override
-    public void addToCaptureRequest(CameraCharacteristics cc,
+    public void addToCaptureRequest(CameraSession session,
+                                    CameraCharacteristics cc,
                                     boolean facingFront,
                                     CaptureRequest.Builder captureBuilder) {
-      int desiredMode=getConvertedFlashMode(cc);
-
-      if (desiredMode==-1) {
-        Log.w("CWAC-Cam2", "no support for requested flash mode");
-      }
-      else {
+      if (session.getCurrentFlashMode()!=null) {
         captureBuilder.set(CaptureRequest.CONTROL_AE_MODE,
-          desiredMode);
+          session.getCurrentFlashMode().getCameraTwoMode());
       }
     }
 
     @Override
-    public void addToPreviewRequest(CameraCharacteristics cc,
+    public void addToPreviewRequest(CameraSession session,
+                                    CameraCharacteristics cc,
                                     CaptureRequest.Builder captureBuilder) {
-      int desiredMode=getConvertedFlashMode(cc);
-
-      if (desiredMode==-1) {
-        Log.w("CWAC-Cam2", "no support for requested flash mode");
-      }
-      else {
+      if (session.getCurrentFlashMode()!=null) {
         captureBuilder.set(CaptureRequest.CONTROL_AE_MODE,
-          desiredMode);
+          session.getCurrentFlashMode().getCameraTwoMode());
       }
-    }
-
-    private int getConvertedFlashMode(CameraCharacteristics cc) {
-      int[] availModes=cc.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
-
-      for (FlashMode mode : flashModes) {
-        int desiredMode=-1;
-
-        if (mode==FlashMode.OFF) {
-          desiredMode=CameraMetadata.CONTROL_AE_MODE_ON;
-        }
-        else if (mode==FlashMode.ALWAYS) {
-          desiredMode=CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
-        }
-        else if (mode==FlashMode.AUTO) {
-          desiredMode=CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH;
-        }
-        else if (mode==FlashMode.REDEYE) {
-          desiredMode=CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE;
-        }
-
-        for (int availMode : availModes) {
-          if (desiredMode==availMode) {
-            return(desiredMode);
-          }
-        }
-      }
-
-      return(-1);
     }
   }
 }

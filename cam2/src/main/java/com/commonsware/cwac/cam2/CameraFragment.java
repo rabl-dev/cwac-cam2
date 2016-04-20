@@ -1,15 +1,15 @@
-/**
- * Copyright (c) 2015 CommonsWare, LLC
- * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/***
+ Copyright (c) 2015-2016 CommonsWare, LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License"); you may
+ not use this file except in compliance with the License. You may obtain
+ a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 
 package com.commonsware.cwac.cam2;
@@ -28,10 +28,13 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import java.io.File;
@@ -46,9 +49,11 @@ public class CameraFragment extends Fragment {
   private static final String ARG_OUTPUT="output";
   private static final String ARG_UPDATE_MEDIA_STORE="updateMediaStore";
   private static final String ARG_IS_VIDEO="isVideo";
-  private static final String ARG_VIDEO_QUALITY="quality";
+  private static final String ARG_QUALITY="quality";
   private static final String ARG_SIZE_LIMIT="sizeLimit";
   private static final String ARG_DURATION_LIMIT="durationLimit";
+  private static final String ARG_ZOOM_STYLE="zoomStyle";
+  private static final int PINCH_ZOOM_DELTA=20;
   private CameraController ctlr;
   private ViewGroup previewStack;
   private FloatingActionButton fabPicture;
@@ -56,15 +61,22 @@ public class CameraFragment extends Fragment {
   private View progress;
   private boolean isVideoRecording=false;
   private boolean mirrorPreview=false;
+  private ScaleGestureDetector scaleDetector;
+  private boolean inSmoothPinchZoom=false;
+  private SeekBar zoomSlider;
 
   public static CameraFragment newPictureInstance(Uri output,
-                                                  boolean updateMediaStore) {
+                                                  boolean updateMediaStore,
+                                                  int quality,
+                                                  ZoomStyle zoomStyle) {
     CameraFragment f=new CameraFragment();
     Bundle args=new Bundle();
 
     args.putParcelable(ARG_OUTPUT, output);
     args.putBoolean(ARG_UPDATE_MEDIA_STORE, updateMediaStore);
+    args.putInt(ARG_QUALITY, quality);
     args.putBoolean(ARG_IS_VIDEO, false);
+    args.putSerializable(ARG_ZOOM_STYLE, zoomStyle);
     f.setArguments(args);
 
     return(f);
@@ -80,7 +92,7 @@ public class CameraFragment extends Fragment {
     args.putParcelable(ARG_OUTPUT, output);
     args.putBoolean(ARG_UPDATE_MEDIA_STORE, updateMediaStore);
     args.putBoolean(ARG_IS_VIDEO, true);
-    args.putInt(ARG_VIDEO_QUALITY, quality);
+    args.putInt(ARG_QUALITY, quality);
     args.putInt(ARG_SIZE_LIMIT, sizeLimit);
     args.putInt(ARG_DURATION_LIMIT, durationLimit);
     f.setArguments(args);
@@ -98,6 +110,8 @@ public class CameraFragment extends Fragment {
     super.onCreate(savedInstanceState);
 
     setRetainInstance(true);
+    scaleDetector=new ScaleGestureDetector(getActivity(),
+      scaleListener);
   }
 
   /**
@@ -138,7 +152,7 @@ public class CameraFragment extends Fragment {
 
       if (fabPicture!=null) {
         fabPicture.setEnabled(true);
-        fabSwitch.setEnabled(true);
+        fabSwitch.setEnabled(canSwitchSources());
       }
     }
   }
@@ -150,7 +164,12 @@ public class CameraFragment extends Fragment {
   @Override
   public void onStop() {
     if (ctlr!=null) {
-      ctlr.stop();
+      try {
+        ctlr.stop();
+      }
+      catch (Exception e) {
+        Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
+      }
     }
 
     EventBus.getDefault().unregister(this);
@@ -186,8 +205,8 @@ public class CameraFragment extends Fragment {
     View v=inflater.inflate(R.layout.cwac_cam2_fragment, container, false);
 
     previewStack=(ViewGroup)v.findViewById(R.id.cwac_cam2_preview_stack);
-    progress=v.findViewById(R.id.cwac_cam2_progress);
 
+    progress=v.findViewById(R.id.cwac_cam2_progress);
     fabPicture=(FloatingActionButton)v.findViewById(R.id.cwac_cam2_picture);
 
     if (isVideo()) {
@@ -207,7 +226,13 @@ public class CameraFragment extends Fragment {
       public void onClick(View view) {
         progress.setVisibility(View.VISIBLE);
         fabSwitch.setEnabled(false);
-        ctlr.switchCamera();
+
+        try {
+          ctlr.switchCamera();
+        }
+        catch (Exception e) {
+          Log.e(getClass().getSimpleName(), "Exception switching camera", e);
+        }
       }
     });
 
@@ -226,6 +251,22 @@ public class CameraFragment extends Fragment {
     return(v);
   }
 
+  public void shutdown() {
+    if (isVideoRecording) {
+      stopVideoRecording(true);
+    }
+    else {
+      progress.setVisibility(View.VISIBLE);
+
+      try {
+        ctlr.stop();
+      }
+      catch (Exception e) {
+        Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
+      }
+    }
+  }
+
   /**
    * @return the CameraController this fragment delegates to
    */
@@ -240,6 +281,7 @@ public class CameraFragment extends Fragment {
    */
   public void setController(CameraController ctlr) {
     this.ctlr=ctlr;
+    ctlr.setQuality(getArguments().getInt(ARG_QUALITY, 1));
   }
 
   /**
@@ -264,8 +306,29 @@ public class CameraFragment extends Fragment {
   public void onEventMainThread(CameraEngine.OpenedEvent event) {
     if (event.exception==null) {
       progress.setVisibility(View.GONE);
-      fabSwitch.setEnabled(true);
+      fabSwitch.setEnabled(canSwitchSources());
       fabPicture.setEnabled(true);
+      zoomSlider=(SeekBar)getView().findViewById(R.id.cwac_cam2_zoom);
+
+      if (ctlr.supportsZoom()) {
+        if (getZoomStyle()==ZoomStyle.PINCH) {
+          previewStack.setOnTouchListener(
+            new View.OnTouchListener() {
+              @Override
+              public boolean onTouch(View v, MotionEvent event) {
+                return (scaleDetector.onTouchEvent(event));
+              }
+            });
+        }
+        else if (getZoomStyle()==ZoomStyle.SEEKBAR) {
+          zoomSlider.setVisibility(View.VISIBLE);
+          zoomSlider.setOnSeekBarChangeListener(seekListener);
+        }
+      }
+      else {
+        previewStack.setOnTouchListener(null);
+        zoomSlider.setVisibility(View.GONE);
+      }
     }
     else {
       getActivity().finish();
@@ -274,6 +337,8 @@ public class CameraFragment extends Fragment {
 
   @SuppressWarnings("unused")
   public void onEventMainThread(CameraEngine.VideoTakenEvent event) {
+    isVideoRecording=false;
+
     if (event.exception==null) {
       if (getArguments().getBoolean(ARG_UPDATE_MEDIA_STORE, false)) {
         final Context app=getActivity().getApplicationContext();
@@ -292,13 +357,19 @@ public class CameraFragment extends Fragment {
       }
 
       isVideoRecording=false;
-      fabPicture.setImageResource(R.drawable.cwac_cam2_ic_videocam);
-      fabPicture.setColorNormalResId(R.color.cwac_cam2_picture_fab);
-      fabPicture.setColorPressedResId(R.color.cwac_cam2_picture_fab_pressed);
+      setVideoFABToNormal();
+    }
+    else if (getActivity().isFinishing()) {
+      shutdown();
     }
     else {
       getActivity().finish();
     }
+  }
+
+  public void onEventMainThread(CameraEngine.SmoothZoomCompletedEvent event) {
+    inSmoothPinchZoom=false;
+    zoomSlider.setEnabled(true);
   }
 
   protected void performCameraAction() {
@@ -327,35 +398,69 @@ public class CameraFragment extends Fragment {
 
   private void recordVideo() {
     if (isVideoRecording) {
-      try {
-        ctlr.stopVideoRecording();
-      }
-      catch (Exception e) {
-        Log.e(getClass().getSimpleName(), "Exception stopping recording of video", e);
-        // TODO: um, do something here
-      }
+      stopVideoRecording(false);
     }
     else {
       try {
-        VideoTransaction.Builder b=new VideoTransaction.Builder();
+        VideoTransaction.Builder b=
+          new VideoTransaction.Builder();
         Uri output=getArguments().getParcelable(ARG_OUTPUT);
 
         b.to(new File(output.getPath()))
-         .quality(getArguments().getInt(ARG_VIDEO_QUALITY, 1))
-         .sizeLimit(getArguments().getInt(ARG_SIZE_LIMIT, 0))
-         .durationLimit(getArguments().getInt(ARG_DURATION_LIMIT, 0));
+          .quality(getArguments().getInt(ARG_QUALITY, 1))
+          .sizeLimit(getArguments().getInt(ARG_SIZE_LIMIT, 0))
+          .durationLimit(
+            getArguments().getInt(ARG_DURATION_LIMIT, 0));
 
         ctlr.recordVideo(b.build());
         isVideoRecording=true;
-        fabPicture.setImageResource(R.drawable.cwac_cam2_ic_stop);
-        fabPicture.setColorNormalResId(R.color.cwac_cam2_recording_fab);
-        fabPicture.setColorPressedResId(R.color.cwac_cam2_recording_fab_pressed);
+        fabPicture.setImageResource(
+          R.drawable.cwac_cam2_ic_stop);
+        fabPicture.setColorNormalResId(
+          R.color.cwac_cam2_recording_fab);
+        fabPicture.setColorPressedResId(
+          R.color.cwac_cam2_recording_fab_pressed);
+        fabSwitch.setEnabled(false);
       }
       catch (Exception e) {
-        Log.e(getClass().getSimpleName(), "Exception recording video", e);
+        Log.e(getClass().getSimpleName(),
+          "Exception recording video", e);
         // TODO: um, do something here
       }
     }
+  }
+
+  public void stopVideoRecording() {
+    stopVideoRecording(true);
+  }
+
+  private void stopVideoRecording(boolean abandon) {
+    setVideoFABToNormal();
+
+    try {
+      ctlr.stopVideoRecording(abandon);
+    }
+    catch (Exception e) {
+      Log.e(getClass().getSimpleName(), "Exception stopping recording of video", e);
+      // TODO: um, do something here
+    }
+    finally {
+      isVideoRecording=false;
+    }
+  }
+
+  private void setVideoFABToNormal() {
+    fabPicture.setImageResource(
+      R.drawable.cwac_cam2_ic_videocam);
+    fabPicture.setColorNormalResId(
+      R.color.cwac_cam2_picture_fab);
+    fabPicture.setColorPressedResId(
+      R.color.cwac_cam2_picture_fab_pressed);
+    fabSwitch.setEnabled(canSwitchSources());
+  }
+
+  private boolean canSwitchSources() {
+    return(((AbstractCameraActivity)getActivity()).canSwitchSources());
   }
 
   private boolean isVideo() {
@@ -411,4 +516,63 @@ public class CameraFragment extends Fragment {
     set.setInterpolator(new OvershootInterpolator(2));
     menu.setIconToggleAnimatorSet(set);
   }
+
+  private ZoomStyle getZoomStyle() {
+    ZoomStyle result=(ZoomStyle)getArguments().getSerializable(ARG_ZOOM_STYLE);
+
+    if (result==null) {
+      result=ZoomStyle.NONE;
+    }
+
+    return(result);
+  }
+
+  private ScaleGestureDetector.OnScaleGestureListener scaleListener=
+    new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+      @Override
+      public void onScaleEnd(ScaleGestureDetector detector) {
+        float scale=detector.getScaleFactor();
+        int delta;
+
+        if (scale>1.0f) {
+          delta=PINCH_ZOOM_DELTA;
+        }
+        else if (scale<1.0f) {
+          delta=-1*PINCH_ZOOM_DELTA;
+        }
+        else {
+          return;
+        }
+
+        if (!inSmoothPinchZoom) {
+          if (ctlr.changeZoom(delta)) {
+            inSmoothPinchZoom=true;
+          }
+        }
+      }
+    };
+
+  private SeekBar.OnSeekBarChangeListener seekListener=
+    new SeekBar.OnSeekBarChangeListener() {
+      @Override
+      public void onProgressChanged(SeekBar seekBar,
+                                    int progress,
+                                    boolean fromUser) {
+        if (fromUser) {
+          if (ctlr.setZoom(progress)) {
+            seekBar.setEnabled(false);
+          }
+        }
+      }
+
+      @Override
+      public void onStartTrackingTouch(SeekBar seekBar) {
+        // no-op
+      }
+
+      @Override
+      public void onStopTrackingTouch(SeekBar seekBar) {
+        // no-op
+      }
+    };
 }
