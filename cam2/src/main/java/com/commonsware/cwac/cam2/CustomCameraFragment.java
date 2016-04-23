@@ -67,7 +67,6 @@ public class CustomCameraFragment extends Fragment {
     private boolean mirrorPreview = false;
     private ScaleGestureDetector scaleDetector;
     private boolean inSmoothPinchZoom = false;
-    private SeekBar zoomSlider;
 
     public static CustomCameraFragment newPictureInstance(Uri output,
                                                           boolean updateMediaStore,
@@ -338,7 +337,6 @@ public class CustomCameraFragment extends Fragment {
             okButton.setEnabled(true);
             problemButton.setEnabled(true);
             progress.setVisibility(View.GONE);
-            zoomSlider = (SeekBar) getView().findViewById(R.id.cwac_cam2_zoom);
 
             if (ctlr.supportsZoom()) {
                 if (getZoomStyle() == ZoomStyle.PINCH) {
@@ -349,13 +347,9 @@ public class CustomCameraFragment extends Fragment {
                                     return (scaleDetector.onTouchEvent(event));
                                 }
                             });
-                } else if (getZoomStyle() == ZoomStyle.SEEKBAR) {
-                    zoomSlider.setVisibility(View.VISIBLE);
-                    zoomSlider.setOnSeekBarChangeListener(seekListener);
                 }
             } else {
                 previewStack.setOnTouchListener(null);
-                zoomSlider.setVisibility(View.GONE);
             }
         } else {
             getActivity().finish();
@@ -403,7 +397,6 @@ public class CustomCameraFragment extends Fragment {
 
     public void onEventMainThread(CameraEngine.SmoothZoomCompletedEvent event) {
         inSmoothPinchZoom = false;
-        zoomSlider.setEnabled(true);
     }
 
     protected void performCameraAction() {
