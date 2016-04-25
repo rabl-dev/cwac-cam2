@@ -1,10 +1,10 @@
 /***
  * Copyright (c) 2015-2016 CommonsWare, LLC
- * <p/>
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -190,6 +190,7 @@ public class CustomCameraFragment extends Fragment {
             try {
                 ctlr.stop();
             } catch (Exception e) {
+                ctlr.postError(ErrorConstants.ERROR_STOPPING, e);
                 Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
             }
         }
@@ -320,6 +321,7 @@ public class CustomCameraFragment extends Fragment {
             try {
                 ctlr.stop();
             } catch (Exception e) {
+                ctlr.postError(ErrorConstants.ERROR_STOPPING, e);
                 Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
             }
         }
@@ -352,6 +354,7 @@ public class CustomCameraFragment extends Fragment {
                 previewStack.setOnTouchListener(null);
             }
         } else {
+            ctlr.postError(ErrorConstants.ERROR_OPEN_CAMERA, event.exception);
             getActivity().finish();
         }
     }
@@ -391,6 +394,7 @@ public class CustomCameraFragment extends Fragment {
         } else if (getActivity().isFinishing()) {
             shutdown();
         } else {
+            ctlr.postError(ErrorConstants.ERROR_VIDEO_TAKEN, event.exception);
             getActivity().finish();
         }
     }
@@ -436,9 +440,8 @@ public class CustomCameraFragment extends Fragment {
                 ctlr.recordVideo(b.build());
                 isVideoRecording = true;
             } catch (Exception e) {
-                Log.e(getClass().getSimpleName(),
-                        "Exception recording video", e);
-                // TODO: um, do something here
+                ctlr.postError(ErrorConstants.ERROR_STOPPING_VIDEO, e);
+                Log.e(getClass().getSimpleName(), "Exception recording video", e);
             }
         }
     }
