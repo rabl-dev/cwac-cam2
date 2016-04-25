@@ -20,6 +20,7 @@ import android.net.Uri;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import de.greenrobot.event.EventBus;
 
 /**
  * ImageProcessor that writes a JPEG file out to some form
@@ -96,7 +97,8 @@ public class JPEGWriter extends AbstractImageProcessor {
         }
       }
       catch (Exception e) {
-        throw new UnsupportedOperationException("Exception when trying to write JPEG", e);
+        // throw new UnsupportedOperationException("Exception when trying to write JPEG", e);
+        EventBus.getDefault().post(new CameraEngine.DeepImpactEvent(e));
       }
     }
   }

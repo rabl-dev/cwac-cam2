@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -61,6 +62,13 @@ abstract public class AbstractCameraActivity extends Activity {
    */
   public static final String EXTRA_ALLOW_SWITCH_FLASH_MODE=
     "cwac_cam2_allow_switch_flash_mode";
+
+  /**
+   * A ResultReceiver to be invoked on any error that the library
+   * cannot handle internally.
+   */
+  public static final String EXTRA_UNHANDLED_ERROR_RECEIVER=
+    "cwac_cam2_unhandled_error_receiver";
 
   /**
    * @return true if the activity wants FEATURE_ACTION_BAR_OVERLAY,
@@ -318,10 +326,12 @@ abstract public class AbstractCameraActivity extends Activity {
         (FocusMode)getIntent().getSerializableExtra(EXTRA_FOCUS_MODE);
       boolean allowChangeFlashMode=
         getIntent().getBooleanExtra(EXTRA_ALLOW_SWITCH_FLASH_MODE, false);
+      ResultReceiver onError=
+        getIntent().getParcelableExtra(EXTRA_UNHANDLED_ERROR_RECEIVER);
 
       CameraController ctrl=
-        new CameraController(focusMode, allowChangeFlashMode,
-          isVideo());
+        new CameraController(focusMode, onError,
+          allowChangeFlashMode, isVideo());
 
       cameraFrag.setController(ctrl);
       cameraFrag
@@ -641,6 +651,19 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public T quality(Quality q) {
       result.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, q.getValue());
+
+      return((T)this);
+    }
+
+    /**
+     * Provides a ResultReceiver, which will be invoked on any
+     * error that the library cannot handle itself.
+     *
+     * @param rr a ResultReceiver to get error information
+     * @return the builder, for further configuration
+     */
+    public T onError(ResultReceiver rr) {
+      result.putExtra(EXTRA_UNHANDLED_ERROR_RECEIVER, rr);
 
       return((T)this);
     }

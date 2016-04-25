@@ -349,7 +349,7 @@ public class CameraTwoEngine extends CameraEngine {
       result=(maxZoom>=1.0f);
     }
     catch (CameraAccessException e) {
-      e.printStackTrace();
+      getBus().post(new DeepImpactEvent(e));
     }
 
     return(result);
@@ -383,7 +383,7 @@ public class CameraTwoEngine extends CameraEngine {
         }
       }
       catch (CameraAccessException e) {
-        e.printStackTrace();
+        getBus().post(new DeepImpactEvent(e));
       }
     }
 
@@ -446,7 +446,7 @@ public class CameraTwoEngine extends CameraEngine {
     public void onError(CameraDevice cameraDevice, int i) {
       lock.release();
       cameraDevice.close();
-      EventBus.getDefault().post(new CameraTwoPreviewErrorEvent(i));
+      getBus().post(new CameraTwoPreviewErrorEvent(i));
     }
 
     @Override
@@ -512,7 +512,7 @@ public class CameraTwoEngine extends CameraEngine {
 
     @Override
     public void onConfigureFailed(CameraCaptureSession session) {
-      EventBus.getDefault().post(new CameraTwoPreviewFailureEvent());
+      getBus().post(new CameraTwoPreviewFailureEvent());
     }
   }
 
@@ -688,6 +688,8 @@ public class CameraTwoEngine extends CameraEngine {
         }
       }
       catch (IllegalStateException e) {
+        getBus().post(new DeepImpactEvent(e));
+
         if (isDebug()) {
           Log.w(getClass().getSimpleName(), "Exception resetting focus", e);
         }
@@ -701,7 +703,7 @@ public class CameraTwoEngine extends CameraEngine {
       long lhArea=(long)lhs.getWidth() * lhs.getHeight();
       long rhArea=(long)rhs.getWidth() * rhs.getHeight();
 
-      return (Long.signum(lhArea - rhArea));
+      return(Long.signum(lhArea - rhArea));
     }
   }
 

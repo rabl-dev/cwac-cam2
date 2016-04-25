@@ -14,15 +14,20 @@
 
 package com.commonsware.cwac.cam2.playground;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.ResultReceiver;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 import com.commonsware.cwac.cam2.AbstractCameraActivity;
 import com.commonsware.cwac.cam2.Facing;
 import com.commonsware.cwac.cam2.FocusMode;
@@ -142,6 +147,8 @@ public class VideoFragment extends PreferenceFragment {
         break;
     }
 
+    b.onError(new ErrorResultReceiver());
+
     Intent result;
 
     if (prefs.getBoolean("useChooser", false)) {
@@ -152,5 +159,25 @@ public class VideoFragment extends PreferenceFragment {
     }
 
     ((Contract)getActivity()).takeVideo(result);
+  }
+
+  @SuppressLint("ParcelCreator")
+  private class ErrorResultReceiver extends ResultReceiver {
+    public ErrorResultReceiver() {
+      super(new Handler(Looper.getMainLooper()));
+    }
+
+    @Override
+    protected void onReceiveResult(int resultCode,
+                                   Bundle resultData) {
+      super.onReceiveResult(resultCode, resultData);
+
+      if (getActivity()!=null) {
+        Toast
+          .makeText(getActivity(), "We had an error",
+            Toast.LENGTH_LONG)
+          .show();
+      }
+    }
   }
 }

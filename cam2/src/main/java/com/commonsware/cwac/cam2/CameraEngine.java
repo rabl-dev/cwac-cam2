@@ -128,6 +128,16 @@ abstract public class CameraEngine {
     }
   }
 
+  /**
+   * Used for errors happening deep in the engines or elsewhere
+   * (e.g., JPEGWriter ran out of disk space)
+   */
+  public static class DeepImpactEvent extends CrashableEvent {
+    public DeepImpactEvent(Exception exception) {
+      super(exception);
+    }
+  }
+
   public static class OrientationChangedEvent {
 
   }

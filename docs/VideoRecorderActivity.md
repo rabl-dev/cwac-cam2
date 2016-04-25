@@ -37,6 +37,7 @@ and what their behavior is:
 | `updateMediaStore()`   | `EXTRA_UPDATE_MEDIA_STORE`| `boolean`                                 | Indicate if `MediaStore` should be notified about newly-captured photo (default is `false`)|
 | `mirrorPreview()`      | `EXTRA_MIRROR_PREVIEW`    | `boolean`                                 | Indicate if preview should be horizontally flipped (default is `false`)|
 | `focusMode()`          | `EXTRA_FOCUS_MODE`        | `AbstractCameraActivity.FocusMode`        | Indicate the desired focus mode for the camera (default is continuous if available, else device default) |
+| `onError()`            | `EXTRA_UNHANDLED_ERROR_RECEIVER` | `ResultReceiver`                   | Provide a IPC callback to be notified about errors inside Cam2 |
 
 Note that `to()` is **required**.
 
@@ -53,6 +54,12 @@ However, when the device is part-way through the rotation, before
 the configuration change kicks in, the mirroring effect starts
 becoming more of a vertical flip rather than a horizontal one.
 In short: the image will look upside-down briefly.
+
+If you call `onError()` and provide a `ResultReceiver`, it will
+be called with `onReceiveResult()` if there is some error inside
+of the library. The `resultCode` will be one of the `ERROR_*`
+values defined on `ErrorConstants`. The `Bundle` will contain
+a stack trace in a `String` value keyed by `ErrorConstants.RESULT_STACK_TRACE`.
 
 ## Example Use of `IntentBuilder`
 

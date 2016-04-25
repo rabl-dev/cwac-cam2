@@ -168,6 +168,7 @@ public class CameraFragment extends Fragment {
         ctlr.stop();
       }
       catch (Exception e) {
+        ctlr.postError(ErrorConstants.ERROR_STOPPING, e);
         Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
       }
     }
@@ -231,6 +232,7 @@ public class CameraFragment extends Fragment {
           ctlr.switchCamera();
         }
         catch (Exception e) {
+          ctlr.postError(ErrorConstants.ERROR_SWITCHING_CAMERAS, e);
           Log.e(getClass().getSimpleName(), "Exception switching camera", e);
         }
       }
@@ -262,6 +264,7 @@ public class CameraFragment extends Fragment {
         ctlr.stop();
       }
       catch (Exception e) {
+        ctlr.postError(ErrorConstants.ERROR_STOPPING, e);
         Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
       }
     }
@@ -331,6 +334,7 @@ public class CameraFragment extends Fragment {
       }
     }
     else {
+      ctlr.postError(ErrorConstants.ERROR_OPEN_CAMERA, event.exception);
       getActivity().finish();
     }
   }
@@ -363,6 +367,7 @@ public class CameraFragment extends Fragment {
       shutdown();
     }
     else {
+      ctlr.postError(ErrorConstants.ERROR_VIDEO_TAKEN, event.exception);
       getActivity().finish();
     }
   }
@@ -441,8 +446,8 @@ public class CameraFragment extends Fragment {
       ctlr.stopVideoRecording(abandon);
     }
     catch (Exception e) {
+      ctlr.postError(ErrorConstants.ERROR_STOPPING_VIDEO, e);
       Log.e(getClass().getSimpleName(), "Exception stopping recording of video", e);
-      // TODO: um, do something here
     }
     finally {
       isVideoRecording=false;

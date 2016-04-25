@@ -35,6 +35,7 @@ and what their behavior is:
 | `zoomStyle()`              | `EXTRA_ZOOM_STYLE`               | `ZoomStyle`                               | Request to allow the user to change zoom levels, via gestures (`ZoomStyle.PINCH`) or a `SeekBar` (`ZoomStyle.SEEKBAR`). Default is `ZoomStyle.NONE` for no zoom option |
 | `quality()`                | `MediaStore.EXTRA_VIDEO_QUALITY` | `AbstractCameraActivity.Quality`          | Indicate the quality, either `Quality.LOW` or `Quality.HIGH` (default=high) |
 | `confirmationQuality()`    | `EXTRA_CONFIRMATION_QUALITY`     | `float` in the (0.0f, 1.0f] range         | The fraction of the app's heap limit that we should be willing to try to use to load the image for confirmation |
+| `onError()`                | `EXTRA_UNHANDLED_ERROR_RECEIVER` | `ResultReceiver`                          | Provide a IPC callback to be notified about errors inside Cam2 |
 
 Note that if you are going to use `skipConfirm()`, you need to call
 that first on the `IntentBuilder` before any of the others.
@@ -59,6 +60,12 @@ will be tried in the order you supply. So, the first mode will be
 used if it is supported, otherwise the second mode will be used, etc.
 If no mode you request is supported, whatever the default device
 behavior is will be performed, which is usually no flash.
+
+If you call `onError()` and provide a `ResultReceiver`, it will
+be called with `onReceiveResult()` if there is some error inside
+of the library. The `resultCode` will be one of the `ERROR_*`
+values defined on `ErrorConstants`. The `Bundle` will contain
+a stack trace in a `String` value keyed by `ErrorConstants.RESULT_STACK_TRACE`.
 
 ## Example Use of `IntentBuilder`
 

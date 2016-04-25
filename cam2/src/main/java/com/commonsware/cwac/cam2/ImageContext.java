@@ -104,7 +104,7 @@ public class ImageContext {
         limit=(int)(1024*1024*memoryClass*quality);
       }
 
-      thumbnail=createThumbnail(null, limit);
+      thumbnail=createBitmap(null, limit);
     }
 
     return(thumbnail);
@@ -113,10 +113,10 @@ public class ImageContext {
   public Bitmap buildResultThumbnail() {
     // TODO: move this onto background thread
 
-    return(createThumbnail(null, 750000));
+    return(createBitmap(null, 750000));
   }
 
-  private Bitmap createThumbnail(Bitmap inBitmap, int limit) {
+  private Bitmap createBitmap(Bitmap inBitmap, int limit) {
     double ratio=(double)jpeg.length * 10.0d / (double)limit;
     int inSampleSize;
 
@@ -126,29 +126,36 @@ public class ImageContext {
       inSampleSize=1;
     }
 
-    return(createThumbnail(inSampleSize, inBitmap, limit));
+    return(createBitmap(inSampleSize, inBitmap, limit));
   }
 
-  private Bitmap createThumbnail(int inSampleSize, Bitmap inBitmap, int limit) {
+  private Bitmap createBitmap(int inSampleSize, Bitmap inBitmap,
+                              int limit) {
     BitmapFactory.Options opts=new BitmapFactory.Options();
 
     opts.inSampleSize=inSampleSize;
     opts.inBitmap=inBitmap;
 
-    Bitmap result=BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length, opts);
+    Bitmap result;
 
-    if (result.getByteCount()>limit) {
-      return(createThumbnail(inSampleSize+1, inBitmap, limit));
+    try {
+      result=
+        BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length, opts);
+
+      if (limit>0 && result.getByteCount()>limit) {
+        return(createBitmap(inSampleSize+1, inBitmap,
+          limit));
+      }
+    }
+    catch (OutOfMemoryError e) {
+      return(createBitmap(inSampleSize+1, inBitmap,
+        limit));
     }
 
     return(result);
   }
 
   private void updateBitmap() {
-    BitmapFactory.Options opts=new BitmapFactory.Options();
-
-    opts.inBitmap=bmp;
-
-    bmp=BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length, opts);
+    bmp=createBitmap(1, bmp, -1); // no limit other than OOM
   }
 }

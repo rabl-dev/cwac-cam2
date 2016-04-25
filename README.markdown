@@ -162,6 +162,7 @@ Do not ask for help via social media.
 
 Release Notes
 -------------
+- v0.5.8: better OOM handling, added `ResultReceiver` support for getting details of errors, bug fix in `confirmationQuality`
 - v0.5.7: improved [OnePlus X compatibility](https://github.com/commonsguy/cwac-cam2/issues/175), allow [configurable confirmation quality](https://github.com/commonsguy/cwac-cam2/issues/180), [block camera-change FAB in exact-match scenario](https://github.com/commonsguy/cwac-cam2/issues/182) 
 - v0.5.6: added quality control to still photos, added video recording to `demo/`
 - v0.5.5: fixed [LG G3 video bug](https://github.com/commonsguy/cwac-cam2/issues/168) and [disable camera changes during video recording](https://github.com/commonsguy/cwac-cam2/issues/172)
