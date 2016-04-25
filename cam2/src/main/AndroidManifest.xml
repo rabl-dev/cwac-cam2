@@ -19,7 +19,8 @@
     android:required="false"/>
 
   <application>
-    <activity android:name="CameraActivity"/>
+    <activity android:name="CameraActivity"
+              android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen"/>
     <activity android:name="VideoRecorderActivity"/>
   </application>
 
