@@ -42,6 +42,7 @@
 | Samsung Galaxy S4 Zoom         | `samsung`/`mprojectlteuc`   | 4.2.2   | [146](https://github.com/commonsguy/cwac-cam2/issues/146) [149](https://github.com/commonsguy/cwac-cam2/issues/149) |
 | Samsung Galaxy S5              | `samsung`/`k3gxx`           | 5.0     | |
 | Samsung Galaxy S6 (G920F)      | `samsung`/`zerofltexx`      | 6.0.1   | |
+| Samsung Galaxy S7 (G930FD)     | `samsung`/`heroltexx`       | 6.0.1   | |
 | SONY Xperia E (C1505)          | `Sony`/`C1505`              | 4.1.1   | |
 | SONY Xperia E4 Dual (E2115)    | `Sony`/`E2115`              | 4.4.4   | |
 | SONY Xperia S (LT26i)          | `Sony Ericsson`/`LT26i_1257-4921` | 4.1.2 | [97](https://github.com/commonsguy/cwac-cam2/issues/97) |

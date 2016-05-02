@@ -26,16 +26,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+
 import com.commonsware.cwac.cam2.util.Utils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -53,7 +55,7 @@ abstract public class AbstractCameraActivity extends Activity {
    * used.
    */
   public static final String EXTRA_FLASH_MODES=
-    "cwac_cam2_flash_modes";
+          "cwac_cam2_flash_modes";
 
   /**
    * True if we should allow the user to change the flash mode
@@ -61,14 +63,14 @@ abstract public class AbstractCameraActivity extends Activity {
    * Defaults to false.
    */
   public static final String EXTRA_ALLOW_SWITCH_FLASH_MODE=
-    "cwac_cam2_allow_switch_flash_mode";
+          "cwac_cam2_allow_switch_flash_mode";
 
   /**
    * A ResultReceiver to be invoked on any error that the library
    * cannot handle internally.
    */
   public static final String EXTRA_UNHANDLED_ERROR_RECEIVER=
-    "cwac_cam2_unhandled_error_receiver";
+          "cwac_cam2_unhandled_error_receiver";
 
   /**
    * @return true if the activity wants FEATURE_ACTION_BAR_OVERLAY,
@@ -122,7 +124,7 @@ abstract public class AbstractCameraActivity extends Activity {
    * is not available, will be cancelled. Defaults to false.
    */
   public static final String EXTRA_FACING_EXACT_MATCH=
-    "cwac_cam2_facing_exact_match";
+          "cwac_cam2_facing_exact_match";
 
   /**
    * Extra name for indicating whether extra diagnostic
@@ -137,7 +139,7 @@ abstract public class AbstractCameraActivity extends Activity {
    * a file:// Uri is used. Default to false.
    */
   public static final String EXTRA_UPDATE_MEDIA_STORE=
-      "cwac_cam2_update_media_store";
+          "cwac_cam2_update_media_store";
 
   /**
    * If set to true, forces the use of the ClassicCameraEngine
@@ -146,7 +148,6 @@ abstract public class AbstractCameraActivity extends Activity {
    */
   public static final String EXTRA_FORCE_CLASSIC="cwac_cam2_force_classic";
   public static final String EXTRA_STATE = "cwac_cam_custom_state";
-
 
   /**
    * If set to true, horizontally flips or mirrors the preview.
@@ -164,7 +165,6 @@ abstract public class AbstractCameraActivity extends Activity {
   public static final String EXTRA_FOCUS_MODE="cwac_cam2_focus_mode";
 
   protected static final String TAG_CAMERA=CustomCameraFragment.class.getCanonicalName();
-
   private static final int REQUEST_PERMS=13401;
   protected CustomCameraFragment cameraFrag;
 
@@ -319,56 +319,61 @@ abstract public class AbstractCameraActivity extends Activity {
   protected void init() {
     cameraFrag=(CustomCameraFragment)getFragmentManager().findFragmentByTag(TAG_CAMERA);
 
+    boolean fragNeedsToBeAdded=false;
+
     if (cameraFrag==null) {
       cameraFrag=buildFragment();
+      fragNeedsToBeAdded=true;
+    }
 
-      FocusMode focusMode=
-        (FocusMode)getIntent().getSerializableExtra(EXTRA_FOCUS_MODE);
-      boolean allowChangeFlashMode=
-        getIntent().getBooleanExtra(EXTRA_ALLOW_SWITCH_FLASH_MODE, false);
-      ResultReceiver onError=
-        getIntent().getParcelableExtra(EXTRA_UNHANDLED_ERROR_RECEIVER);
+    FocusMode focusMode=
+            (FocusMode)getIntent().getSerializableExtra(EXTRA_FOCUS_MODE);
+    boolean allowChangeFlashMode=
+            getIntent().getBooleanExtra(EXTRA_ALLOW_SWITCH_FLASH_MODE, false);
+    ResultReceiver onError=
+            getIntent().getParcelableExtra(EXTRA_UNHANDLED_ERROR_RECEIVER);
 
-      CameraController ctrl=
-        new CameraController(focusMode, onError,
-          allowChangeFlashMode, isVideo());
+    CameraController ctrl=
+            new CameraController(focusMode, onError,
+                    allowChangeFlashMode, isVideo());
 
-      cameraFrag.setController(ctrl);
-      cameraFrag
-        .setMirrorPreview(getIntent()
-                .getBooleanExtra(EXTRA_MIRROR_PREVIEW, false));
+    cameraFrag.setController(ctrl);
+    cameraFrag
+            .setMirrorPreview(getIntent()
+                    .getBooleanExtra(EXTRA_MIRROR_PREVIEW, false));
 
-      Facing facing=
-        (Facing)getIntent().getSerializableExtra(EXTRA_FACING);
+    Facing facing=
+            (Facing)getIntent().getSerializableExtra(EXTRA_FACING);
 
-      if (facing==null) {
-        facing=Facing.BACK;
-      }
+    if (facing==null) {
+      facing=Facing.BACK;
+    }
 
-      boolean match=getIntent()
-        .getBooleanExtra(EXTRA_FACING_EXACT_MATCH, false);
-      CameraSelectionCriteria criteria=
-        new CameraSelectionCriteria.Builder()
-          .facing(facing)
-          .facingExactMatch(match)
-          .build();
-      boolean forceClassic=
-        getIntent().getBooleanExtra(EXTRA_FORCE_CLASSIC, false);
+    boolean match=getIntent()
+            .getBooleanExtra(EXTRA_FACING_EXACT_MATCH, false);
+    CameraSelectionCriteria criteria=
+            new CameraSelectionCriteria.Builder()
+                    .facing(facing)
+                    .facingExactMatch(match)
+                    .build();
+    boolean forceClassic=
+            getIntent().getBooleanExtra(EXTRA_FORCE_CLASSIC, false);
 
-      if ("samsung".equals(Build.MANUFACTURER) &&
-          ("ha3gub".equals(Build.PRODUCT) ||
-          "k3gxx".equals(Build.PRODUCT))) {
-        forceClassic=true;
-      }
+    if ("samsung".equals(Build.MANUFACTURER) &&
+            ("ha3gub".equals(Build.PRODUCT) ||
+                    "k3gxx".equals(Build.PRODUCT))) {
+      forceClassic=true;
+    }
 
-      ctrl.setEngine(CameraEngine.buildInstance(this, forceClassic), criteria);
-      ctrl.getEngine().setDebug(getIntent().getBooleanExtra(EXTRA_DEBUG_ENABLED, false));
-      configEngine(ctrl.getEngine());
+    ctrl.setEngine(CameraEngine.buildInstance(this, forceClassic), criteria);
+    ctrl.getEngine().setDebug(getIntent().getBooleanExtra(EXTRA_DEBUG_ENABLED, false));
+    configEngine(ctrl.getEngine());
 
+    if (fragNeedsToBeAdded) {
       getFragmentManager()
-        .beginTransaction()
-        .add(android.R.id.content, cameraFrag, TAG_CAMERA)
-        .commit();
+              .beginTransaction()
+              .add(android.R.id.content, cameraFrag, TAG_CAMERA)
+              .commit();
     }
   }
 
@@ -456,13 +461,13 @@ abstract public class AbstractCameraActivity extends Activity {
 
       if (original.hasExtra(MediaStore.EXTRA_OUTPUT)) {
         toChooseFrom.putExtra(MediaStore.EXTRA_OUTPUT,
-          original.getParcelableExtra(MediaStore.EXTRA_OUTPUT));
+                original.getParcelableExtra(MediaStore.EXTRA_OUTPUT));
       }
 
       Intent chooser=Intent.createChooser(toChooseFrom, title);
 
       chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
-        new Intent[] {original});
+              new Intent[] {original});
 
       return(chooser);
     }
@@ -625,7 +630,7 @@ abstract public class AbstractCameraActivity extends Activity {
      */
     public T flashModes(List<FlashMode> modes) {
       result.putExtra(EXTRA_FLASH_MODES,
-        new ArrayList<FlashMode>(modes));
+              new ArrayList<FlashMode>(modes));
 
       return((T)this);
     }

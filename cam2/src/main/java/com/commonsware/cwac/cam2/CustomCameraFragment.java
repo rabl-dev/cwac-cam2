@@ -318,11 +318,13 @@ public class CustomCameraFragment extends Fragment {
         } else {
             progress.setVisibility(View.VISIBLE);
 
-            try {
-                ctlr.stop();
-            } catch (Exception e) {
-                ctlr.postError(ErrorConstants.ERROR_STOPPING, e);
-                Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
+            if (ctlr!=null) {
+                try {
+                    ctlr.stop();
+                } catch (Exception e) {
+                    ctlr.postError(ErrorConstants.ERROR_STOPPING, e);
+                    Log.e(getClass().getSimpleName(), "Exception stopping controller", e);
+                }
             }
         }
     }
